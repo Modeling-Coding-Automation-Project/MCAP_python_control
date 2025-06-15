@@ -1,0 +1,3 @@
+[submodule "sample/simulation_manager"]
+	path = sample/simulation_manager
+	url = https://github.com/Modeling-Coding-Automation-Project/simulation_manager.git
