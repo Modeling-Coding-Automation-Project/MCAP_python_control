@@ -158,7 +158,7 @@ class ExpressionDeploy:
         The generated code is suitable for deployment in a C++ environment, allowing for efficient execution of
         symbolic computations.
         """
-        if not isinstance(sym_object, sp.Matrix):
+        if not isinstance(sym_object, sp.MatrixBase):
             raise ValueError(
                 "The input must be a sympy.Matrix object.")
 
