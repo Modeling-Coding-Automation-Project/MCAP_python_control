@@ -142,51 +142,6 @@ class InputSizeVisitor(ast.NodeVisitor):
                     self.input_size = node.value.n
 
 
-class FunctionExtractor(ast.NodeVisitor):
-    """
-    A class to extract function definitions from a Python file and store them in a dictionary.
-    This class reads the source code from a specified file, parses it into an abstract syntax tree (AST),
-    and visits each function definition node to extract the function name and its source code.
-    Attributes:
-        file_path (str): The path to the Python file from which to extract function definitions.
-        source_code (str): The source code of the Python file.
-        functions (dict): A dictionary to store function names as keys and their source code as values.
-    """
-
-    def __init__(self, file_path):
-        with open(file_path, 'r', encoding='utf-8') as file:
-            source_code = file.read()
-        self.source_code = source_code
-
-        self.functions = {}
-
-    def visit_FunctionDef(self, node):
-        """
-        Visits function definition nodes in the AST and extracts the function name and source code.
-        Args:
-            node (ast.FunctionDef): The function definition node to visit.
-        This method retrieves the function name and its source code segment from the original source code,
-        and stores them in the `functions` dictionary.
-        """
-        function_name = node.name
-        function_code = ast.get_source_segment(self.source_code, node)
-        self.functions[function_name] = function_code
-        self.generic_visit(node)
-
-    def extract(self):
-        """
-        Parses the source code and extracts all function definitions.
-        This method creates an AST from the source code, visits each function definition node,
-        and populates the `functions` dictionary with function names and their corresponding source code.
-        Returns:
-            dict: A dictionary containing function names as keys and their source code as values.
-        """
-        tree = ast.parse(self.source_code)
-        self.visit(tree)
-
-        return self.functions
-
-
 class ExpressionDeploy:
     @staticmethod
     def create_sympy_code(sym_object: sp.Matrix):
