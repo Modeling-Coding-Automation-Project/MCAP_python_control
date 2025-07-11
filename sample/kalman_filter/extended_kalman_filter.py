@@ -15,11 +15,22 @@ import numpy as np
 import matplotlib.pyplot as plt
 import sympy
 from sympy import symbols
+from dataclasses import dataclass
 
 from python_control.kalman_filter import ExtendedKalmanFilter
 from python_control.control_deploy import ExpressionDeploy
 
 from sample.simulation_manager.visualize.simulation_plotter import SimulationPlotter
+
+
+@dataclass
+class Parameters:
+    delta_time: float
+    wheelbase: float
+    landmark_1_x: float
+    landmark_1_y: float
+    landmark_2_x: float
+    landmark_2_y: float
 
 
 def main():
@@ -76,16 +87,6 @@ def main():
     # %% design EKF
 
     landmarks = np.array([[-1.0, 10.0], [-1.0, 10.0]])
-
-    class Parameters:
-        def __init__(self, delta_time, wheelbase,
-                     landmark_1_x, landmark_1_y, landmark_2_x, landmark_2_y):
-            self.delta_time = delta_time
-            self.wheelbase = wheelbase
-            self.landmark_1_x = landmark_1_x
-            self.landmark_1_y = landmark_1_y
-            self.landmark_2_x = landmark_2_x
-            self.landmark_2_y = landmark_2_y
 
     Parameters_ekf = Parameters(
         delta_time=0.1, wheelbase=0.5,
