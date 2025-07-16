@@ -329,13 +329,13 @@ class ExpressionDeploy:
         caller_file_name_without_ext = os.path.splitext(caller_file_name)[
             0]
 
-        function_code_file_name = caller_file_name_without_ext + \
+        function_code_file_name_without_ext = caller_file_name_without_ext + \
             "_" + sym_object_name
 
         ExpressionDeploy.write_function_code_from_sympy(
-            sym_object, function_code_file_name, X, U)
+            sym_object, function_code_file_name_without_ext, X, U)
 
-        return function_code_file_name
+        return function_code_file_name_without_ext
 
     @staticmethod
     def write_measurement_function_code_from_sympy(sym_object, X):
@@ -366,13 +366,13 @@ class ExpressionDeploy:
         caller_file_name_without_ext = os.path.splitext(caller_file_name)[
             0]
 
-        function_code_file_name = caller_file_name_without_ext + \
+        function_code_file_name_without_ext = caller_file_name_without_ext + \
             "_" + sym_object_name
 
         ExpressionDeploy.write_function_code_from_sympy(
-            sym_object, function_code_file_name, X, U=None)
+            sym_object, function_code_file_name_without_ext, X, U=None)
 
-        return function_code_file_name
+        return function_code_file_name_without_ext
 
     @staticmethod
     def get_input_size_from_function_code(file_path):
