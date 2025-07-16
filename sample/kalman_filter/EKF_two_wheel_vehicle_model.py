@@ -19,6 +19,7 @@ m, u, v, r, F_f, F_r = sp.symbols('m u v r F_f F_r', real=True)
 I, l_f, l_r, v_dot, r_dot, V, beta, beta_dot = sp.symbols(
     'I l_f l_r v_dot r_dot V beta beta_dot', real=True)
 
+# derive equations of two wheel vehicle model
 eq_1 = sp.Eq(m * (v_dot + u * r), F_f + F_r)
 eq_2 = sp.Eq(I * r_dot, l_f * F_f - l_r * F_r)
 
@@ -50,8 +51,25 @@ eq_vec = [eq_1, eq_2]
 
 solution = sp.solve(eq_vec, beta_dot, dict=True)
 beta_dot_sol = sp.simplify(solution[0][beta_dot])
-print("beta_dot =\n", beta_dot_sol)
 
 solution = sp.solve(eq_vec, r_dot, dict=True)
 r_dot_sol = sp.simplify(solution[0][r_dot])
-print("r_dot =\n", r_dot_sol)
+
+# Define state space model
+a = sp.symbols('a', real=True)
+U = sp.Matrix([[delta], [a]])
+
+theta, px, py = sp.symbols('theta px py', real=True)
+X = sp.Matrix([[px], [py], [theta], [r], [beta], [V]])
+Y = sp.Matrix([[px], [py], [theta], [r], [V]])
+
+f = sp.Matrix([
+    [V * sp.cos(theta)],
+    [V * sp.sin(theta)],
+    [r],
+    [r_dot_sol],
+    [beta_dot_sol],
+    [a],
+])
+
+h = sp.Matrix([[X[0]], [X[1]], [X[2]], [X[3]], [X[5]]])
