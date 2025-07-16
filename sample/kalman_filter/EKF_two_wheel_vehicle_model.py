@@ -28,16 +28,12 @@ eq1 = sp.Eq(lhs, eq_1.rhs)
 K_f, K_r, delta, beta_f, beta_r = sp.symbols(
     'K_f K_r delta beta_f beta_r', real=True)
 
-# eq_vec = [eq_1.subs({F_f: -2 * K_f * beta_f, F_r: -2 * K_r * beta_r}),
-#           eq_2.subs({F_f: -2 * K_f * beta_f, F_r: -2 * K_r * beta_r})]
 rhs = eq1.rhs.subs({F_f: -2 * K_f * beta_f, F_r: -2 * K_r * beta_r})
 eq_1 = sp.Eq(eq1.lhs, rhs)
 
 rhs = eq_2.rhs.subs({F_f: -2 * K_f * beta_f, F_r: -2 * K_r * beta_r})
 eq_2 = sp.Eq(eq_2.lhs, rhs)
 
-# eq_vec = [eq.subs({beta_f: beta + (l_f / V) * r - delta,
-#                   beta_r: beta - (l_r / V) * r}) for eq in eq_vec]
 rhs = eq_1.rhs.subs({
     beta_f: beta + (l_f / V) * r - delta,
     beta_r: beta - (l_r / V) * r
