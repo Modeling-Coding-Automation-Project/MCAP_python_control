@@ -65,7 +65,7 @@ def create_model():
     X = sp.Matrix([[px], [py], [theta], [r], [beta], [V]])
     Y = sp.Matrix([[px], [py], [theta], [r], [V]])
 
-    f = sp.Matrix([
+    fxu = sp.Matrix([
         [V * sp.cos(theta)],
         [V * sp.sin(theta)],
         [r],
@@ -73,19 +73,29 @@ def create_model():
         [beta_dot_sol],
         [a],
     ])
+    print("State Function (fxu):")
+    sp.pprint(fxu)
 
-    h = sp.Matrix([[X[0]], [X[1]], [X[2]], [X[3]], [X[5]]])
+    hx = sp.Matrix([[X[0]], [X[1]], [X[2]], [X[3]], [X[5]]])
+    print("Measurement Function (hx):")
+    sp.pprint(hx)
 
     # derive Jacobian
-    Ac = f.jacobian(X)
-    Bc = f.jacobian(U)
-    Cc = h.jacobian(X)
+    fxu_jacobian = fxu.jacobian(X)
+    hx_jacobian = hx.jacobian(X)
 
-    return f, h, Ac, Bc, Cc, X, U, Y
+    ExpressionDeploy.write_state_function_code_from_sympy(fxu, X, U)
+    ExpressionDeploy.write_state_function_code_from_sympy(fxu_jacobian, X, U)
+
+    ExpressionDeploy.write_measurement_function_code_from_sympy(hx, X)
+    ExpressionDeploy.write_measurement_function_code_from_sympy(
+        hx_jacobian, X)
+
+    return fxu, hx, fxu_jacobian, hx_jacobian, X, U, Y
 
 
 @dataclass
-class Parameters:
+class Parameter:
     m: float = 2000
     l_f: float = 1.4
     l_r: float = 1.6
@@ -95,7 +105,14 @@ class Parameters:
 
 
 def main():
-    f, h, Ac, Bc, Cc, X, U, Y = create_model()
+    fxu, hx, fxu_jacobian, hx_jacobian, X, U, Y = create_model()
+
+    parameters_ekf = Parameter()
+
+    Number_of_Delay = 0
+
+    Q_ekf = np.diag([1.0, 1.0, 1.0, 1.0, 1.0, 1.0])
+    R_ekf = np.diag([1.0, 1.0, 1.0, 1.0, 1.0])
 
 
 if __name__ == "__main__":
