@@ -60,8 +60,8 @@ def create_model(delta_time: float):
     r_dot_sol = sp.simplify(solution[0][r_dot])
 
     # Define state space model
-    a = sp.symbols('a', real=True)
-    U = sp.Matrix([[delta], [a]])
+    accel = sp.symbols('accel', real=True)
+    U = sp.Matrix([[delta], [accel]])
 
     theta, px, py = sp.symbols('theta px py', real=True)
     X = sp.Matrix([[px], [py], [theta], [r], [beta], [V]])
@@ -73,7 +73,7 @@ def create_model(delta_time: float):
         [r],
         [r_dot_sol],
         [beta_dot_sol],
-        [a],
+        [accel],
     ])
     fxu: sp.Matrix = X + fxu_continuous * delta_time
 
@@ -162,7 +162,7 @@ def main():
 
     ekf.x_hat = np.array([[0.0], [0.0], [0.0], [0.0], [0.0], [0.5]])
 
-    # U: delta, a
+    # U: delta, accel
     u = np.array([[0.0], [0.0]])
 
     # create delta sequence
@@ -185,11 +185,34 @@ def main():
             delta_sequence[i] = delta_sequence[i - 1] + \
                 input_signal[i] * delta_max * sim_delta_time
 
+    # create sequence for acceleration
+    _, signal_plus = PulseGenerator.sample_pulse(
+        sampling_interval=sim_delta_time,
+        start_time=time[0],
+        period=10.0,
+        pulse_width=25.0,
+        pulse_amplitude=1.0,
+        duration=time[-1],
+    )
+
+    _, signal_minus = PulseGenerator.sample_pulse(
+        sampling_interval=sim_delta_time,
+        start_time=time[0] + 5.0,
+        period=10.0,
+        pulse_width=25.0,
+        pulse_amplitude=-1.0,
+        duration=time[-1],
+    )
+
+    accel_sequence = np.zeros_like(time)
+    for i in range(len(time)):
+        accel_sequence[i] = signal_plus[i] + signal_minus[i]
+
     plotter = SimulationPlotter()
 
     # simulation
     for i in range(round(simulation_time / sim_delta_time)):
-        u = np.array([[delta_sequence[i]], [0.0]])
+        u = np.array([[delta_sequence[i]], [accel_sequence[i]]])
 
         # system response
         x_true = fxu_script_function(x_true, u, parameters_ekf)
