@@ -84,14 +84,21 @@ def create_model():
     fxu_jacobian = fxu.jacobian(X)
     hx_jacobian = hx.jacobian(X)
 
-    ExpressionDeploy.write_state_function_code_from_sympy(fxu, X, U)
-    ExpressionDeploy.write_state_function_code_from_sympy(fxu_jacobian, X, U)
+    fxu_file_name = ExpressionDeploy.write_state_function_code_from_sympy(
+        fxu, X, U)
+    fxu_jacobian_file_name = \
+        ExpressionDeploy.write_state_function_code_from_sympy(
+            fxu_jacobian, X, U)
 
-    ExpressionDeploy.write_measurement_function_code_from_sympy(hx, X)
-    ExpressionDeploy.write_measurement_function_code_from_sympy(
-        hx_jacobian, X)
+    hx_file_name = ExpressionDeploy.write_measurement_function_code_from_sympy(
+        hx, X)
+    hx_jacobian_file_name = \
+        ExpressionDeploy.write_measurement_function_code_from_sympy(
+            hx_jacobian, X)
 
-    return fxu, hx, fxu_jacobian, hx_jacobian, X, U, Y
+    return fxu, hx, fxu_jacobian, hx_jacobian, X, U, Y, \
+        fxu_file_name, fxu_jacobian_file_name, \
+        hx_file_name, hx_jacobian_file_name
 
 
 @dataclass
@@ -105,7 +112,9 @@ class Parameter:
 
 
 def main():
-    fxu, hx, fxu_jacobian, hx_jacobian, X, U, Y = create_model()
+    fxu, hx, fxu_jacobian, hx_jacobian, X, U, Y, \
+        fxu_file_name, fxu_jacobian_file_name, \
+        hx_file_name, hx_jacobian_file_name = create_model()
 
     parameters_ekf = Parameter()
 
