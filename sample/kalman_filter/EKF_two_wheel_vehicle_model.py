@@ -73,3 +73,8 @@ f = sp.Matrix([
 ])
 
 h = sp.Matrix([[X[0]], [X[1]], [X[2]], [X[3]], [X[5]]])
+
+# derive Jacobian
+Ac = f.jacobian(X)
+Bc = f.jacobian(U)
+Cc = h.jacobian(X)
