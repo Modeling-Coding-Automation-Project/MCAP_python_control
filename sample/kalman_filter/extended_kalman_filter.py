@@ -1,7 +1,15 @@
 """
 File: extended_kalman_filter.py
 
-This script demonstrates the implementation and simulation of an Extended Kalman Filter (EKF) for a bicycle model with delayed measurements. The EKF is designed to estimate the state of a vehicle (position and orientation) using noisy sensor measurements from two landmarks. The code symbolically defines the system and measurement models, generates their Jacobians, and deploys them for use in the EKF. It also provides a simulation environment to test the EKF's performance under realistic conditions, including process and measurement noise, as well as system delays.
+This script demonstrates the implementation and simulation of an
+Extended Kalman Filter (EKF) for a bicycle model with delayed measurements.
+The EKF is designed to estimate the state of a vehicle
+(position and orientation) using noisy sensor measurements from two landmarks.
+The code symbolically defines the system and measurement models,
+generates their Jacobians, and deploys them for use in the EKF.
+It also provides a simulation environment to test the EKF's
+performance under realistic conditions,
+including process and measurement noise, as well as system delays.
 
 Reference URL:
 https://inzkyk.xyz/kalman_filter/extended_kalman_filters/#subsection:11.4.1

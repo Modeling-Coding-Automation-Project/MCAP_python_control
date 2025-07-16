@@ -1,7 +1,15 @@
 """
 File: unscented_kalman_filter.py
 
-This script demonstrates the implementation and simulation of an Unscented Kalman Filter (UKF) for a bicycle model with delayed measurements. The code defines the nonlinear state transition and measurement functions using symbolic computation, generates deployable code for these functions, and sets up a UKF to estimate the state of a simulated vehicle moving in a 2D plane with two landmarks as references. The simulation includes process and measurement noise, as well as configurable system delay. Results are visualized using a plotting utility.
+This script demonstrates the implementation and simulation of
+an Unscented Kalman Filter (UKF) for a bicycle model with delayed measurements.
+The code defines the nonlinear state transition and measurement functions
+using symbolic computation, generates deployable code for these functions,
+and sets up a UKF to estimate the state of a simulated vehicle moving
+in a 2D plane with two landmarks as references.
+The simulation includes process and measurement noise,
+as well as configurable system delay.
+Results are visualized using a plotting utility.
 
 Reference URL:
 https://inzkyk.xyz/kalman_filter/unscented_kalman_filter/#section:10.15

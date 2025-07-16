@@ -1,7 +1,13 @@
 """
 File: linear_kalman_filter.py
 
-This script demonstrates the simulation and deployment of a Linear Kalman Filter (LKF) for a discrete-time linear system with input, output, and delay. It generates an input sequence using an M-sequence (LFSR), simulates the system dynamics with noise, applies the Kalman filter for state estimation, and visualizes the results. The script also shows how to generate C++ code for the Kalman filter using the KalmanFilterDeploy utility.
+This script demonstrates the simulation and deployment of a Linear Kalman Filter (LKF)
+for a discrete-time linear system with input, output, and delay.
+It generates an input sequence using an M-sequence (LFSR),
+simulates the system dynamics with noise, applies the Kalman filter for state estimation,
+and visualizes the results.
+The script also shows how to generate C++ code for the Kalman filter
+using the KalmanFilterDeploy utility.
 """
 import os
 import sys
