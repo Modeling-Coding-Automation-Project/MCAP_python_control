@@ -8,11 +8,13 @@ import matplotlib.pyplot as plt
 import sympy as sp
 from sympy import symbols
 from dataclasses import dataclass
+from copy import deepcopy
 
 from python_control.kalman_filter import ExtendedKalmanFilter
 from python_control.control_deploy import ExpressionDeploy
 
 from sample.simulation_manager.visualize.simulation_plotter import SimulationPlotter
+from sample.simulation_manager.signal_edit.sampler import PulseGenerator
 
 
 def create_model(delta_time: float):
@@ -118,6 +120,8 @@ def main():
     sim_delta_time = 0.01
     simulation_time = 20.0
 
+    time = np.arange(0, simulation_time, sim_delta_time)
+
     X, U, Y, \
         fxu_file_name, fxu_jacobian_file_name, \
         hx_file_name, hx_jacobian_file_name = create_model(sim_delta_time)
@@ -161,12 +165,32 @@ def main():
     # U: delta, a
     u = np.array([[0.0], [0.0]])
 
-    plotter = SimulationPlotter()
+    # create delta sequence
+    _, input_signal = PulseGenerator.sample_pulse(
+        sampling_interval=sim_delta_time,
+        start_time=time[0],
+        period=6.0,
+        pulse_width=50.0,
+        pulse_amplitude=2.0,
+        duration=time[-1],
+    )
+    input_signal = input_signal - 1.0
+    delta_sequence = np.zeros_like(time)
 
-    time = np.arange(0, simulation_time, sim_delta_time)
+    delta_max = 30.0 / 180.0 / math.pi
+    for i in range(len(time)):
+        if i == 0:
+            delta_sequence[i] = input_signal[i] * delta_max * sim_delta_time
+        else:
+            delta_sequence[i] = delta_sequence[i - 1] + \
+                input_signal[i] * delta_max * sim_delta_time
+
+    plotter = SimulationPlotter()
 
     # simulation
     for i in range(round(simulation_time / sim_delta_time)):
+        u = np.array([[delta_sequence[i]], [0.0]])
+
         # system response
         x_true = fxu_script_function(x_true, u, parameters_ekf)
         y_measured = hx_script_function(x_true, parameters_ekf)
@@ -177,10 +201,10 @@ def main():
 
         x_estimated = ekf.get_x_hat_without_delay()
 
-        plotter.append(x_true)
-        plotter.append(x_estimated)
-        plotter.append(y_measured)
-        plotter.append(u)
+        plotter.append_name(x_true, "x_true")
+        plotter.append_name(x_estimated, "x_estimated")
+        plotter.append_name(y_measured, "y_measured")
+        plotter.append_name(u, "u")
 
     # plot
     plotter.assign("x_true", column=0, row=0, position=(0, 0),
