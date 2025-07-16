@@ -123,6 +123,71 @@ def main():
     Q_ekf = np.diag([1.0, 1.0, 1.0, 1.0, 1.0, 1.0])
     R_ekf = np.diag([1.0, 1.0, 1.0, 1.0, 1.0])
 
+    local_vars = {}
+
+    exec(f"from {fxu_file_name} import function as fxu_script_function",
+         globals(), local_vars)
+    exec(
+        f"from {fxu_jacobian_file_name} import function as fxu_jacobian_script_function", globals(), local_vars)
+    exec(f"from {hx_file_name} import function as hx_script_function",
+         globals(), local_vars)
+    exec(
+        f"from {hx_jacobian_file_name} import function as hx_jacobian_script_function", globals(), local_vars)
+
+    fxu_script_function = local_vars["fxu_script_function"]
+    fxu_jacobian_script_function = local_vars["fxu_jacobian_script_function"]
+    hx_script_function = local_vars["hx_script_function"]
+    hx_jacobian_script_function = local_vars["hx_jacobian_script_function"]
+
+    ekf = ExtendedKalmanFilter(fxu_script_function, hx_script_function,
+                               fxu_jacobian_script_function, hx_jacobian_script_function,
+                               Q_ekf, R_ekf, parameters_ekf, Number_of_Delay)
+
+    # simulation setup
+    sim_delta_time = 0.01
+    simulation_time = 20.0
+
+    # X: px, py, theta, r, beta, V
+    x_true = np.array([[0.0], [0.0], [0.0], [0.0], [0.0], [1.0]])
+
+    # U: delta, a
+    u = np.array([[0.0], [0.0]])
+
+    plotter = SimulationPlotter()
+
+    time = np.arange(0, simulation_time, sim_delta_time)
+
+    # simulation
+    for i in range(round(simulation_time / sim_delta_time)):
+        x_true_dif = fxu_script_function(x_true, u, parameters_ekf)
+        x_true = x_true + x_true_dif * sim_delta_time
+
+        y_measured = hx_script_function(x_true, parameters_ekf)
+
+        plotter.append(x_true)
+        plotter.append(y_measured)
+        plotter.append(u)
+
+    # plot
+    plotter.assign("x_true", column=0, row=0, position=(0, 0),
+                   x_sequence=time, label="px_true")
+    plotter.assign("x_true", column=1, row=0, position=(1, 0),
+                   x_sequence=time, label="py_true")
+    plotter.assign("x_true", column=2, row=0, position=(2, 0),
+                   x_sequence=time, label="theta_true")
+    plotter.assign("x_true", column=3, row=0, position=(0, 1),
+                   x_sequence=time, label="r_true")
+    plotter.assign("x_true", column=4, row=0, position=(1, 1),
+                   x_sequence=time, label="beta_true")
+    plotter.assign("x_true", column=5, row=0, position=(2, 1),
+                   x_sequence=time, label="V_true")
+    plotter.assign("u", column=0, row=0, position=(0, 2),
+                   x_sequence=time, label="delta")
+    plotter.assign("u", column=1, row=0, position=(1, 2),
+                   x_sequence=time, label="a")
+
+    plotter.plot()
+
 
 if __name__ == "__main__":
     main()
