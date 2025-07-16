@@ -323,9 +323,19 @@ class ExpressionDeploy:
             if value is sym_object:
                 sym_object_name = name
                 break
+        # Get the caller's file name
+        caller_file_full_path = frame.f_code.co_filename
+        caller_file_name = os.path.basename(caller_file_full_path)
+        caller_file_name_without_ext = os.path.splitext(caller_file_name)[
+            0]
+
+        function_code_file_name_without_ext = caller_file_name_without_ext + \
+            "_" + sym_object_name
 
         ExpressionDeploy.write_function_code_from_sympy(
-            sym_object, sym_object_name, X, U)
+            sym_object, function_code_file_name_without_ext, X, U)
+
+        return function_code_file_name_without_ext
 
     @staticmethod
     def write_measurement_function_code_from_sympy(sym_object, X):
@@ -350,9 +360,19 @@ class ExpressionDeploy:
             if value is sym_object:
                 sym_object_name = name
                 break
+        # Get the caller's file name
+        caller_file_full_path = frame.f_code.co_filename
+        caller_file_name = os.path.basename(caller_file_full_path)
+        caller_file_name_without_ext = os.path.splitext(caller_file_name)[
+            0]
+
+        function_code_file_name_without_ext = caller_file_name_without_ext + \
+            "_" + sym_object_name
 
         ExpressionDeploy.write_function_code_from_sympy(
-            sym_object, sym_object_name, X, U=None)
+            sym_object, function_code_file_name_without_ext, X, U=None)
+
+        return function_code_file_name_without_ext
 
     @staticmethod
     def get_input_size_from_function_code(file_path):

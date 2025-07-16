@@ -1,7 +1,15 @@
 """
 File: unscented_kalman_filter.py
 
-This script demonstrates the implementation and simulation of an Unscented Kalman Filter (UKF) for a bicycle model with delayed measurements. The code defines the nonlinear state transition and measurement functions using symbolic computation, generates deployable code for these functions, and sets up a UKF to estimate the state of a simulated vehicle moving in a 2D plane with two landmarks as references. The simulation includes process and measurement noise, as well as configurable system delay. Results are visualized using a plotting utility.
+This script demonstrates the implementation and simulation of
+an Unscented Kalman Filter (UKF) for a bicycle model with delayed measurements.
+The code defines the nonlinear state transition and measurement functions
+using symbolic computation, generates deployable code for these functions,
+and sets up a UKF to estimate the state of a simulated vehicle moving
+in a 2D plane with two landmarks as references.
+The simulation includes process and measurement noise,
+as well as configurable system delay.
+Results are visualized using a plotting utility.
 
 Reference URL:
 https://inzkyk.xyz/kalman_filter/unscented_kalman_filter/#section:10.15
@@ -73,8 +81,10 @@ def main():
                        [sympy.atan2(landmark_2_y - y, landmark_2_x - x) - theta]])
 
     # Save functions to separate files
-    ExpressionDeploy.write_state_function_code_from_sympy(fxu, X, U)
-    ExpressionDeploy.write_measurement_function_code_from_sympy(hx, X)
+    fxu_file_name = ExpressionDeploy.write_state_function_code_from_sympy(
+        fxu, X, U)
+    hx_file_name = ExpressionDeploy.write_measurement_function_code_from_sympy(
+        hx, X)
 
     # %% design EKF
 
@@ -90,13 +100,21 @@ def main():
     Q_ukf = np.diag([0.01, 0.01, 0.01])
     R_ukf = np.diag([1.0, 1.0, 1.0, 1.0])
 
-    import fxu
-    import hx
-    # ukf = UnscentedKalmanFilter_Basic(fxu.function, hx.function,
+    local_vars = {}
+
+    exec(f"from {fxu_file_name} import function as fxu_script_function",
+         globals(), local_vars)
+    exec(f"from {hx_file_name} import function as hx_script_function",
+         globals(), local_vars)
+
+    fxu_script_function = local_vars["fxu_script_function"]
+    hx_script_function = local_vars["hx_script_function"]
+
+    # ukf = UnscentedKalmanFilter_Basic(fxu_script_function, hx_script_function,
     #                                   Q_ukf, R_ukf, Parameters_ukf,
     #                                   Number_of_Delay, kappa=0.5)
 
-    ukf = UnscentedKalmanFilter(fxu.function, hx.function,
+    ukf = UnscentedKalmanFilter(fxu_script_function, hx_script_function,
                                 Q_ukf, R_ukf, Parameters_ukf,
                                 Number_of_Delay)
 
