@@ -15,7 +15,7 @@ from python_control.control_deploy import ExpressionDeploy
 from sample.simulation_manager.visualize.simulation_plotter import SimulationPlotter
 
 
-def create_model():
+def create_model(delta_time: float):
     # define parameters and variables
     m, u, v, r, F_f, F_r = sp.symbols('m u v r F_f F_r', real=True)
     I, l_f, l_r, v_dot, r_dot, V, beta, beta_dot = sp.symbols(
@@ -65,7 +65,7 @@ def create_model():
     X = sp.Matrix([[px], [py], [theta], [r], [beta], [V]])
     Y = sp.Matrix([[px], [py], [theta], [r], [V]])
 
-    fxu = sp.Matrix([
+    fxu_continuous = sp.Matrix([
         [V * sp.cos(theta)],
         [V * sp.sin(theta)],
         [r],
@@ -73,6 +73,8 @@ def create_model():
         [beta_dot_sol],
         [a],
     ])
+    fxu: sp.Matrix = X + fxu_continuous * delta_time
+
     print("State Function (fxu):")
     sp.pprint(fxu)
 
@@ -96,7 +98,7 @@ def create_model():
         ExpressionDeploy.write_measurement_function_code_from_sympy(
             hx_jacobian, X)
 
-    return fxu, hx, fxu_jacobian, hx_jacobian, X, U, Y, \
+    return X, U, Y, \
         fxu_file_name, fxu_jacobian_file_name, \
         hx_file_name, hx_jacobian_file_name
 
@@ -112,13 +114,15 @@ class Parameter:
 
 
 def main():
-    fxu, hx, fxu_jacobian, hx_jacobian, X, U, Y, \
+    # simulation setup
+    sim_delta_time = 0.01
+    simulation_time = 20.0
+
+    X, U, Y, \
         fxu_file_name, fxu_jacobian_file_name, \
-        hx_file_name, hx_jacobian_file_name = create_model()
+        hx_file_name, hx_jacobian_file_name = create_model(sim_delta_time)
 
     parameters_ekf = Parameter()
-
-    Number_of_Delay = 0
 
     Q_ekf = np.diag([1.0, 1.0, 1.0, 1.0, 1.0, 1.0])
     R_ekf = np.diag([1.0, 1.0, 1.0, 1.0, 1.0])
@@ -139,16 +143,20 @@ def main():
     hx_script_function = local_vars["hx_script_function"]
     hx_jacobian_script_function = local_vars["hx_jacobian_script_function"]
 
-    ekf = ExtendedKalmanFilter(fxu_script_function, hx_script_function,
-                               fxu_jacobian_script_function, hx_jacobian_script_function,
-                               Q_ekf, R_ekf, parameters_ekf, Number_of_Delay)
-
-    # simulation setup
-    sim_delta_time = 0.01
-    simulation_time = 20.0
+    ekf = ExtendedKalmanFilter(
+        state_function=fxu_script_function,
+        measurement_function=hx_script_function,
+        state_function_jacobian=fxu_jacobian_script_function,
+        measurement_function_jacobian=hx_jacobian_script_function,
+        Q=Q_ekf,
+        R=R_ekf,
+        Parameters=parameters_ekf
+    )
 
     # X: px, py, theta, r, beta, V
     x_true = np.array([[0.0], [0.0], [0.0], [0.0], [0.0], [1.0]])
+
+    ekf.x_hat = np.array([[0.0], [0.0], [0.0], [0.0], [0.0], [0.5]])
 
     # U: delta, a
     u = np.array([[0.0], [0.0]])
@@ -159,28 +167,52 @@ def main():
 
     # simulation
     for i in range(round(simulation_time / sim_delta_time)):
-        x_true_dif = fxu_script_function(x_true, u, parameters_ekf)
-        x_true = x_true + x_true_dif * sim_delta_time
-
+        # system response
+        x_true = fxu_script_function(x_true, u, parameters_ekf)
         y_measured = hx_script_function(x_true, parameters_ekf)
 
+        # estimate
+        ekf.predict(u)
+        ekf.update(y_measured)
+
+        x_estimated = ekf.get_x_hat_without_delay()
+
         plotter.append(x_true)
+        plotter.append(x_estimated)
         plotter.append(y_measured)
         plotter.append(u)
 
     # plot
     plotter.assign("x_true", column=0, row=0, position=(0, 0),
                    x_sequence=time, label="px_true")
+    plotter.assign("x_estimated", column=0, row=0, position=(0, 0),
+                   x_sequence=time, label="px_estimated")
+
     plotter.assign("x_true", column=1, row=0, position=(1, 0),
                    x_sequence=time, label="py_true")
+    plotter.assign("x_estimated", column=1, row=0, position=(1, 0),
+                   x_sequence=time, label="py_estimated")
+
     plotter.assign("x_true", column=2, row=0, position=(2, 0),
                    x_sequence=time, label="theta_true")
+    plotter.assign("x_estimated", column=2, row=0, position=(2, 0),
+                   x_sequence=time, label="theta_estimated")
+
     plotter.assign("x_true", column=3, row=0, position=(0, 1),
                    x_sequence=time, label="r_true")
+    plotter.assign("x_estimated", column=3, row=0, position=(0, 1),
+                   x_sequence=time, label="r_estimated")
+
     plotter.assign("x_true", column=4, row=0, position=(1, 1),
                    x_sequence=time, label="beta_true")
+    plotter.assign("x_estimated", column=4, row=0, position=(1, 1),
+                   x_sequence=time, label="beta_estimated")
+
     plotter.assign("x_true", column=5, row=0, position=(2, 1),
                    x_sequence=time, label="V_true")
+    plotter.assign("x_estimated", column=5, row=0, position=(2, 1),
+                   x_sequence=time, label="V_estimated")
+
     plotter.assign("u", column=0, row=0, position=(0, 2),
                    x_sequence=time, label="delta")
     plotter.assign("u", column=1, row=0, position=(1, 2),
