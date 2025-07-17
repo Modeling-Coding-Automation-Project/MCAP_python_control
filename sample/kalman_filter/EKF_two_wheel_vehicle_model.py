@@ -4,11 +4,8 @@ sys.path.append(os.getcwd())
 
 import math
 import numpy as np
-import matplotlib.pyplot as plt
 import sympy as sp
-from sympy import symbols
 from dataclasses import dataclass
-from copy import deepcopy
 
 from python_control.kalman_filter import ExtendedKalmanFilter
 from python_control.control_deploy import ExpressionDeploy
@@ -180,10 +177,10 @@ def main():
     delta_max = 30.0 / 180.0 / math.pi
     for i in range(len(time)):
         if i == 0:
-            delta_sequence[i] = input_signal[i] * delta_max * sim_delta_time
+            delta_sequence[i] = input_signal[i, 0] * delta_max * sim_delta_time
         else:
             delta_sequence[i] = delta_sequence[i - 1] + \
-                input_signal[i] * delta_max * sim_delta_time
+                input_signal[i, 0] * delta_max * sim_delta_time
 
     # create sequence for acceleration
     _, signal_plus = PulseGenerator.sample_pulse(
@@ -206,7 +203,7 @@ def main():
 
     accel_sequence = np.zeros_like(time)
     for i in range(len(time)):
-        accel_sequence[i] = signal_plus[i] + signal_minus[i]
+        accel_sequence[i] = signal_plus[i, 0] + signal_minus[i, 0]
 
     plotter = SimulationPlotter()
 
