@@ -300,7 +300,8 @@ class ExpressionDeploy:
             total_code, f"{sym_object_name}.py")
 
     @staticmethod
-    def write_state_function_code_from_sympy(sym_object, X, U=None):
+    def write_state_function_code_from_sympy(
+            sym_object, X, U=None, file_name: str = None):
         """
         Writes the generated C++ code for a Kalman filter state function based on a symbolic representation.
         Args:
@@ -324,10 +325,13 @@ class ExpressionDeploy:
                 sym_object_name = name
                 break
         # Get the caller's file name
-        caller_file_full_path = frame.f_code.co_filename
-        caller_file_name = os.path.basename(caller_file_full_path)
-        caller_file_name_without_ext = os.path.splitext(caller_file_name)[
-            0]
+        if file_name is None:
+            caller_file_full_path = frame.f_code.co_filename
+            caller_file_name = os.path.basename(caller_file_full_path)
+            caller_file_name_without_ext = os.path.splitext(caller_file_name)[
+                0]
+        else:
+            caller_file_name_without_ext = os.path.splitext(file_name)[0]
 
         function_code_file_name_without_ext = caller_file_name_without_ext + \
             "_" + sym_object_name
@@ -338,7 +342,8 @@ class ExpressionDeploy:
         return function_code_file_name_without_ext
 
     @staticmethod
-    def write_measurement_function_code_from_sympy(sym_object, X):
+    def write_measurement_function_code_from_sympy(
+            sym_object, X, file_name: str = None):
         """
         Writes the generated C++ code for a Kalman filter measurement function based on a symbolic representation.
         Args:
@@ -361,10 +366,13 @@ class ExpressionDeploy:
                 sym_object_name = name
                 break
         # Get the caller's file name
-        caller_file_full_path = frame.f_code.co_filename
-        caller_file_name = os.path.basename(caller_file_full_path)
-        caller_file_name_without_ext = os.path.splitext(caller_file_name)[
-            0]
+        if file_name is None:
+            caller_file_full_path = frame.f_code.co_filename
+            caller_file_name = os.path.basename(caller_file_full_path)
+            caller_file_name_without_ext = os.path.splitext(caller_file_name)[
+                0]
+        else:
+            caller_file_name_without_ext = os.path.splitext(file_name)[0]
 
         function_code_file_name_without_ext = caller_file_name_without_ext + \
             "_" + sym_object_name
