@@ -1,6 +1,10 @@
 """
-This module provides the ControlDeploy class, which offers utility methods for data type validation and writing code to files.
-It is designed to support deployment processes where ensuring correct data types and exporting code are necessary steps.
+File: control_deploy.py
+
+This module provides the ControlDeploy class,
+which offers utility methods for data type validation and writing code to files.
+It is designed to support deployment processes where ensuring correct data types
+and exporting code are necessary steps.
 """
 import os
 import sys
@@ -15,41 +19,87 @@ import astor
 
 class IntegerPowerReplacer(ast.NodeTransformer):
     """
-    A custom AST NodeTransformer that replaces integer power operations with repeated multiplications.
+    A custom AST NodeTransformer that replaces integer power operations
+      with repeated multiplications.
 
-    This class traverses the abstract syntax tree (AST) of Python code and transforms expressions of the form
-    `a ** n` (where `n` is a positive integer constant) into equivalent repeated multiplication expressions,
-    i.e., `a * a * ... * a` (n times). This can be useful for code generation or translation to languages that
+    This class traverses the abstract syntax tree (AST) of Python code
+      and transforms expressions of the form
+    `a ** n` (where `n` is a positive integer constant) into equivalent
+      repeated multiplication expressions,
+    i.e., `a * a * ... * a` (n times). This can be useful for code generation
+      or translation to languages that
     do not support the power operator.
     """
 
     def visit_BinOp(self, node):
         """
         Visits binary operation nodes in the AST.
-        If the operation is a power operation with a positive integer exponent, it transforms it into repeated multiplication.
+        If the operation is a power operation with a positive integer exponent,
+          it transforms it into repeated multiplication.
         Args:
             node (ast.BinOp): The binary operation node to visit.
         Returns:
-            ast.AST: The transformed node, or the original node if no transformation is applied.
+            ast.AST: The transformed node, or the original node
+              if no transformation is applied.
         """
+        # First visit children so nested power operations get transformed
         self.generic_visit(node)
-        if isinstance(node.op, ast.Pow) and isinstance(node.right, ast.Constant) and isinstance(node.right.value, int) and node.right.value > 0:
-            n = node.right.value
+
+        # Helper to extract integer exponent value from node.right
+        def _get_int_exponent(rhs):
+            # Direct constant (Python 3.8+)
+            if isinstance(rhs, ast.Constant) and isinstance(rhs.value, int):
+                return rhs.value
+            # Older style numeric literal
+            if isinstance(rhs, ast.Num) and isinstance(rhs.n, int):
+                return rhs.n
+            # Unary minus literal like `-2` is parsed as UnaryOp(USub, Constant(2))
+            if isinstance(rhs, ast.UnaryOp) and isinstance(rhs.op, ast.USub):
+                operand = rhs.operand
+                if isinstance(operand, ast.Constant) and isinstance(operand.value, int):
+                    return -operand.value
+                if isinstance(operand, ast.Num) and isinstance(operand.n, int):
+                    return -operand.n
+            return None
+
+        exp_val = None
+        if isinstance(node.op, ast.Pow):
+            exp_val = _get_int_exponent(node.right)
+
+        # Only transform when exponent is an integer constant
+        if exp_val is None:
+            return node
+
+        n = exp_val
+        # Handle special case n == 0 -> return 1
+        if n == 0:
+            return ast.copy_location(ast.Constant(value=1), node)
+
+        # Positive exponent: repeated multiplications a * a * ...
+        if n > 0:
             result = node.left
             for _ in range(n - 1):
                 result = ast.BinOp(left=result, op=ast.Mult(), right=node.left)
             return result
-        return node
+
+        # Negative exponent: produce repeated divisions: 1 / a / a / ...
+        abs_n = abs(n)
+        result = ast.Constant(value=1)
+        for _ in range(abs_n):
+            result = ast.BinOp(left=result, op=ast.Div(), right=node.left)
+        return result
 
     def transform_code(self, source_code):
         """
-        Transforms the given Python source code by replacing integer power operations with an alternative implementation.
+        Transforms the given Python source code by replacing
+          integer power operations with an alternative implementation.
 
         Args:
             source_code (str): The Python source code to be transformed.
 
         Returns:
-            str: The transformed Python source code with integer power operations replaced.
+            str: The transformed Python source code
+              with integer power operations replaced.
 
         Raises:
             SyntaxError: If the provided source code cannot be parsed.
@@ -57,6 +107,9 @@ class IntegerPowerReplacer(ast.NodeTransformer):
         tree = ast.parse(source_code)
         transformer = IntegerPowerReplacer()
         transformed_tree = transformer.visit(tree)
+
+        # Ensure location information is present for codegen
+        ast.fix_missing_locations(transformed_tree)
 
         transformed_code = astor.to_source(transformed_tree)
 
