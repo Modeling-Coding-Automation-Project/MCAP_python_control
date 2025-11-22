@@ -7,6 +7,10 @@
 
 https://github.com/Modeling-Coding-Automation-Project/python_control_to_cpp
 
+### 動作確認済みPythonバージョン
+
+Python 3.11 以降
+
 ## サポート
 
 新規にissueを作成して、詳細をお知らせください。

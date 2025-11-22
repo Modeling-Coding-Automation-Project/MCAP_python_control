@@ -50,9 +50,6 @@ class IntegerPowerReplacer(ast.NodeTransformer):
             # Direct constant (Python 3.8+)
             if isinstance(rhs, ast.Constant) and isinstance(rhs.value, int):
                 return rhs.value
-            # Older style numeric literal
-            if isinstance(rhs, ast.Num) and isinstance(rhs.n, int):
-                return rhs.n
             # Unary minus literal like `-2` is parsed as UnaryOp(USub, Constant(2))
             if isinstance(rhs, ast.UnaryOp) and isinstance(rhs.op, ast.USub):
                 operand = rhs.operand
