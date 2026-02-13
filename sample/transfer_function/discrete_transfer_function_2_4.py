@@ -5,10 +5,14 @@ This script demonstrates the creation, analysis, and deployment of a discrete tr
 It defines a discrete transfer function, generates corresponding C++ header code for deployment, and compares the step response
 of the transfer function in both transfer function and state-space representations. The results are visualized using matplotlib.
 """
-import os
+from __future__ import annotations
 
+import os
 import sys
-sys.path.append(os.getcwd())
+from pathlib import Path
+
+sys.path.append(str(Path(__file__).resolve().parents[1]))
+sys.path.append(str(Path(__file__).resolve().parents[2]))
 
 import control
 import numpy as np

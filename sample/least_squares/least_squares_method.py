@@ -3,10 +3,14 @@ File: least_squares_method.py
 
 This script demonstrates the use of the LeastSquares and LeastSquaresDeploy classes for performing and deploying a linear least squares regression model. It generates synthetic data with two features and an offset, fits a linear model, predicts outputs, and compares the learned weights to the true weights. The script also shows how to generate C++ header files for the learned model and visualizes the input data.
 """
-import os
+from __future__ import annotations
 
+import os
 import sys
-sys.path.append(os.getcwd())
+from pathlib import Path
+
+sys.path.append(str(Path(__file__).resolve().parents[1]))
+sys.path.append(str(Path(__file__).resolve().parents[2]))
 
 import math
 import numpy as np

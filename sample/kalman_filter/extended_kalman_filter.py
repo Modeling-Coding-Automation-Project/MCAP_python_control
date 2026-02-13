@@ -14,9 +14,14 @@ including process and measurement noise, as well as system delays.
 Reference URL:
 https://inzkyk.xyz/kalman_filter/extended_kalman_filters/#subsection:11.4.1
 """
+from __future__ import annotations
+
 import os
 import sys
-sys.path.append(os.getcwd())
+from pathlib import Path
+
+sys.path.append(str(Path(__file__).resolve().parents[1]))
+sys.path.append(str(Path(__file__).resolve().parents[2]))
 
 import math
 import numpy as np

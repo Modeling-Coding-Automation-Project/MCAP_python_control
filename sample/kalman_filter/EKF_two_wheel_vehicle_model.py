@@ -1,6 +1,26 @@
+"""
+Extended Kalman Filter for Two-Wheel Vehicle Model
+
+This module implements an Extended Kalman Filter (EKF) for estimating the state
+of a two-wheel vehicle model. It uses symbolic mathematics to derive the state
+and measurement functions, along with their Jacobians, and then deploys them
+as executable Python functions.
+
+The vehicle model includes:
+- Lateral dynamics (beta, beta_dot)
+- Yaw dynamics (r, r_dot)
+- Longitudinal dynamics (V, accel)
+- Position tracking (px, py)
+- Orientation tracking (theta)
+"""
+from __future__ import annotations
+
 import os
 import sys
-sys.path.append(os.getcwd())
+from pathlib import Path
+
+sys.path.append(str(Path(__file__).resolve().parents[1]))
+sys.path.append(str(Path(__file__).resolve().parents[2]))
 
 import math
 import numpy as np

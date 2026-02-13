@@ -3,10 +3,14 @@ File: discrete_transfer_function_3_4.py
 
 This script demonstrates the process of defining a continuous transfer function, analyzing its step response, discretizing it, and generating corresponding C++ code for the discrete transfer function. The script uses the `control` library for system modeling and response analysis, and `matplotlib` for plotting the results. It also utilizes the `TransferFunctionDeploy` class to export the discrete transfer function as C++ header files for deployment in C++ projects.
 """
-import os
+from __future__ import annotations
 
+import os
 import sys
-sys.path.append(os.getcwd())
+from pathlib import Path
+
+sys.path.append(str(Path(__file__).resolve().parents[1]))
+sys.path.append(str(Path(__file__).resolve().parents[2]))
 
 import control
 import numpy as np

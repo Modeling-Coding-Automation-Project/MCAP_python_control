@@ -5,9 +5,14 @@ This script demonstrates the creation, analysis, and deployment of a state-space
 It defines a continuous-time state-space system, simulates its step response, discretizes the system, and generates C++ header files for deployment.
 The script also visualizes the step responses for both continuous and discrete systems.
 """
+from __future__ import annotations
+
 import os
 import sys
-sys.path.append(os.getcwd())
+from pathlib import Path
+
+sys.path.append(str(Path(__file__).resolve().parents[1]))
+sys.path.append(str(Path(__file__).resolve().parents[2]))
 
 import numpy as np
 import control

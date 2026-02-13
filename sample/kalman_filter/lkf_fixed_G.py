@@ -6,9 +6,14 @@ It defines a simple 2-state system, configures the Kalman filter with system and
 to estimate the system states from noisy measurements. The script also generates C++ header files for the configured
 Kalman filter and visualizes the true states, estimated states, control inputs, and measurements over time.
 """
+from __future__ import annotations
+
 import os
 import sys
-sys.path.append(os.getcwd())
+from pathlib import Path
+
+sys.path.append(str(Path(__file__).resolve().parents[1]))
+sys.path.append(str(Path(__file__).resolve().parents[2]))
 
 import numpy as np
 

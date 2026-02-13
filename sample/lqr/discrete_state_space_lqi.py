@@ -8,9 +8,14 @@ https://github.com/AtsushiSakai/PyAdvancedControl
 https://jp.mathworks.com/help/control/ref/lti.lqr.html
 https://jp.mathworks.com/help/control/ref/ss.lqi.html
 """
+from __future__ import annotations
+
 import os
 import sys
-sys.path.append(os.getcwd())
+from pathlib import Path
+
+sys.path.append(str(Path(__file__).resolve().parents[1]))
+sys.path.append(str(Path(__file__).resolve().parents[2]))
 
 import matplotlib.pyplot as plt
 import control

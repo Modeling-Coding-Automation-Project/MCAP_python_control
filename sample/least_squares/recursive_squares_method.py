@@ -3,9 +3,14 @@ File: recursive_squares_method.py
 
 This script demonstrates the use of Recursive Least Squares (RLS) for online parameter estimation in a linear regression setting. It generates synthetic data, applies the RLS algorithm to estimate the weights of a linear model, and visualizes the results. The script also shows how to export the RLS model as C++ code for deployment.
 """
+from __future__ import annotations
+
 import os
 import sys
-sys.path.append(os.getcwd())
+from pathlib import Path
+
+sys.path.append(str(Path(__file__).resolve().parents[1]))
+sys.path.append(str(Path(__file__).resolve().parents[2]))
 
 import math
 import numpy as np

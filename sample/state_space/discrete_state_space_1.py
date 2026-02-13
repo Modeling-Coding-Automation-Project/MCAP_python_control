@@ -5,9 +5,14 @@ This script demonstrates the simulation and C++ code generation of a discrete-ti
 It defines a simple state-space system, simulates its response over a number of time steps, and visualizes the results.
 Additionally, it generates C++ header files for the defined state-space model for deployment purposes.
 """
+from __future__ import annotations
+
 import os
 import sys
-sys.path.append(os.getcwd())
+from pathlib import Path
+
+sys.path.append(str(Path(__file__).resolve().parents[1]))
+sys.path.append(str(Path(__file__).resolve().parents[2]))
 
 import numpy as np
 import control
