@@ -6,9 +6,13 @@ which offers utility methods for data type validation and writing code to files.
 It is designed to support deployment processes where ensuring correct data types
 and exporting code are necessary steps.
 """
+from __future__ import annotations
+
 import os
 import sys
-sys.path.append(os.getcwd())
+from pathlib import Path
+
+sys.path.append(str(Path(__file__).resolve().parents[1]))
 
 import numpy as np
 import sympy as sp
