@@ -1,14 +1,20 @@
 """
 File: discrete_pid_controller.py
 
-This script demonstrates the implementation and comparison of continuous and discrete PID controllers for a given plant model using the Python Control Systems Library. It includes the following main functionalities:
+This script demonstrates the implementation and
+comparison of continuous and discrete PID controllers
+for a given plant model using the Python Control Systems Library.
+It includes the following main functionalities:
 
 - Defines a continuous-time plant model and designs a continuous PID controller.
 - Simulates and plots the step response of the closed-loop continuous system.
-- Discretizes both the plant model and the PID controller using zero-order hold (ZOH) and simulates the discrete closed-loop system.
+- Discretizes both the plant model and the PID controller
+ using zero-order hold (ZOH) and simulates the discrete closed-loop system.
 - Plots the step response of the discrete system alongside the continuous system for comparison.
-- Performs a step-by-step simulation of the discrete PID controller interacting with the discretized plant in state-space form.
-- Utilizes a custom `DiscretePID_Controller` class for the discrete PID logic and `DiscretePID_ControllerDeploy` for generating C++ code for deployment.
+- Performs a step-by-step simulation of the discrete PID controller
+ interacting with the discretized plant in state-space form.
+- Utilizes a custom `DiscretePID_Controller` class for the discrete PID logic
+ and `DiscretePID_ControllerDeploy` for generating C++ code for deployment.
 - Uses `SimulationPlotter` for visualizing the simulation results.
 """
 from __future__ import annotations
@@ -26,7 +32,7 @@ import matplotlib.pyplot as plt
 
 from python_control.pid_controller import DiscretePID_Controller
 
-from sample.simulation_manager.visualize.simulation_plotter import SimulationPlotter
+from sample.simulation_manager.visualize.simulation_plotter_dash import SimulationPlotterDash
 
 # parameter
 dt = 0.2
@@ -96,7 +102,7 @@ x_plant = np.zeros((plant_model_d_ss.A.shape[0], 1))
 pid = DiscretePID_Controller(delta_time=dt, Kp=Kp, Ki=Ki, Kd=Kd, N=(
     1.0 / dt), Kb=Ki, minimum_output=-0.2, maximum_output=0.2)
 
-plotter = SimulationPlotter()
+plotter = SimulationPlotterDash()
 
 r = 1.0
 y = 0.0

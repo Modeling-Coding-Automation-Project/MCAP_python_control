@@ -20,7 +20,7 @@ from dataclasses import dataclass
 
 from python_control.pid_controller import DiscretePID_Controller
 
-from sample.simulation_manager.visualize.simulation_plotter import SimulationPlotter
+from sample.simulation_manager.visualize.simulation_plotter_dash import SimulationPlotterDash
 
 
 @dataclass
@@ -55,7 +55,7 @@ if __name__ == "__main__":
     params = ServoParams()
     A, B, C, D = servo_state_matrices(params)
 
-    plotter = SimulationPlotter()
+    plotter = SimulationPlotterDash()
 
     # euler forward method simulation
     sim_delta_time = 1e-3

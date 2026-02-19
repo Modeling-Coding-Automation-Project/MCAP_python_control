@@ -19,7 +19,7 @@ import matplotlib.pyplot as plt
 
 from python_control.least_squares import RecursiveLeastSquares
 
-from sample.simulation_manager.visualize.simulation_plotter import SimulationPlotter
+from sample.simulation_manager.visualize.simulation_plotter_dash import SimulationPlotterDash
 
 # Create data
 np.random.seed(42)
@@ -36,7 +36,7 @@ X = np.column_stack((x1, x2))
 # Create Recursive Least Squares object
 rls = RecursiveLeastSquares(feature_size=X.shape[1], lambda_factor=0.9)
 
-plotter = SimulationPlotter()
+plotter = SimulationPlotterDash()
 
 for i in range(n_samples):
     x = X[i].reshape(-1, 1)

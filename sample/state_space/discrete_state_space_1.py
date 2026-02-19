@@ -18,7 +18,7 @@ import numpy as np
 import control
 import matplotlib.pyplot as plt
 
-from sample.simulation_manager.visualize.simulation_plotter import SimulationPlotter
+from sample.simulation_manager.visualize.simulation_plotter_dash import SimulationPlotterDash
 
 # define state-space model
 A = np.array([[0.7, 0.2],
@@ -37,7 +37,7 @@ x = np.array([[0],
 u = 1  # input
 n_steps = 50  # number of steps
 
-plotter = SimulationPlotter()
+plotter = SimulationPlotterDash()
 
 # simulation
 for _ in range(n_steps):

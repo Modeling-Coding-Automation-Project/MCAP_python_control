@@ -19,7 +19,7 @@ import numpy as np
 
 from python_control.kalman_filter import LinearKalmanFilter
 
-from sample.simulation_manager.visualize.simulation_plotter import SimulationPlotter
+from sample.simulation_manager.visualize.simulation_plotter_dash import SimulationPlotterDash
 
 
 def main():
@@ -59,7 +59,7 @@ def main():
     # Generate data
     np.random.seed(0)
 
-    plotter = SimulationPlotter()
+    plotter = SimulationPlotterDash()
 
     x_true = np.array([[0.1], [0.1]])
     x_estimate = lkf.get_x_hat()

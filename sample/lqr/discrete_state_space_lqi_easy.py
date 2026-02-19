@@ -1,7 +1,12 @@
 """
 File: discrete_state_space_lqi_easy.py
 
-This script demonstrates the design and simulation of a discrete-time Linear-Quadratic Integral (LQI) controller for a second-order system. The code constructs a state-space model from a transfer function, augments the system for integral action, discretizes it, and computes the optimal LQI gain using the Arimoto-Potter method. The simulation tracks a reference signal and visualizes the results.
+This script demonstrates the design and simulation of a
+discrete-time Linear-Quadratic Integral (LQI) controller for a second-order system.
+The code constructs a state-space model from a transfer function,
+augments the system for integral action, discretizes it,
+and computes the optimal LQI gain using the Arimoto-Potter method.
+The simulation tracks a reference signal and visualizes the results.
 
 Reference URL:
 https://github.com/AtsushiSakai/PyAdvancedControl
@@ -22,7 +27,7 @@ import control
 import numpy as np
 import scipy.linalg as la
 
-from sample.simulation_manager.visualize.simulation_plotter import SimulationPlotter
+from sample.simulation_manager.visualize.simulation_plotter_dash import SimulationPlotterDash
 
 simulation_time = 10.0
 dt = 0.1
@@ -129,7 +134,7 @@ def main_reference_tracking():
     e_y_integral = np.zeros((1, 1))
 
     time = []
-    plotter = SimulationPlotter()
+    plotter = SimulationPlotterDash()
 
     # simulation
     while t <= simulation_time:

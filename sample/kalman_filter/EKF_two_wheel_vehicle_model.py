@@ -30,7 +30,7 @@ from dataclasses import dataclass
 from python_control.kalman_filter import ExtendedKalmanFilter
 from python_control.control_deploy import ExpressionDeploy
 
-from sample.simulation_manager.visualize.simulation_plotter import SimulationPlotter
+from sample.simulation_manager.visualize.simulation_plotter_dash import SimulationPlotterDash
 from sample.simulation_manager.signal_edit.sampler import PulseGenerator
 
 
@@ -225,7 +225,7 @@ def main():
     for i in range(len(time)):
         accel_sequence[i] = signal_plus[i, 0] + signal_minus[i, 0]
 
-    plotter = SimulationPlotter()
+    plotter = SimulationPlotterDash()
 
     # simulation
     for i in range(round(simulation_time / sim_delta_time)):

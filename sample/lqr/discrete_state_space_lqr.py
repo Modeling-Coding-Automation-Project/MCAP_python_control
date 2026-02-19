@@ -1,7 +1,9 @@
 """
 File: discrete_state_space_lqr.py
 
-This script demonstrates the design and simulation of a discrete-time Linear-Quadratic Regulator (LQR) for a pendulum system. It includes the following main functionalities:
+This script demonstrates the design and simulation of a
+discrete-time Linear-Quadratic Regulator (LQR) for a pendulum system.
+It includes the following main functionalities:
 - Definition of a continuous-time state-space model for a pendulum.
 - Discretization of the continuous model.
 - LQR gain calculation using the Arimoto-Potter method and comparison with other methods.
@@ -26,7 +28,7 @@ import control
 import numpy as np
 import scipy.linalg as la
 
-from sample.simulation_manager.visualize.simulation_plotter import SimulationPlotter
+from sample.simulation_manager.visualize.simulation_plotter_dash import SimulationPlotterDash
 
 simulation_time = 10.0
 dt = 0.1
@@ -155,7 +157,7 @@ def main_reference_tracking():
     ])
 
     time = []
-    plotter = SimulationPlotter()
+    plotter = SimulationPlotterDash()
 
     # simulation
     while t <= simulation_time:

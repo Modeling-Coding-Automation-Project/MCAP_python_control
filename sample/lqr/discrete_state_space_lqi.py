@@ -1,7 +1,14 @@
 """
 File Name: discrete_state_space_lqi.py
 
-This script demonstrates the implementation of a Linear-Quadratic Integral (LQI) controller for a discrete-time state-space model of a pendulum system. The code sets up the continuous-time state-space representation, discretizes it, augments the system for integral action, and computes the optimal feedback gain using the Arimoto-Potter method. The simulation tracks a reference trajectory and visualizes the results using a custom plotting utility.
+This script demonstrates the implementation of a
+Linear-Quadratic Integral (LQI) controller for a
+discrete-time state-space model of a pendulum system.
+The code sets up the continuous-time state-space representation,
+discretizes it, augments the system for integral action,
+and computes the optimal feedback gain using the Arimoto-Potter method.
+The simulation tracks a reference trajectory and visualizes
+the results using a custom plotting utility.
 
 Reference URL:
 https://github.com/AtsushiSakai/PyAdvancedControl
@@ -22,7 +29,7 @@ import control
 import numpy as np
 import scipy.linalg as la
 
-from sample.simulation_manager.visualize.simulation_plotter import SimulationPlotter
+from sample.simulation_manager.visualize.simulation_plotter_dash import SimulationPlotterDash
 
 simulation_time = 10.0
 dt = 0.1
@@ -152,7 +159,7 @@ def main_reference_tracking():
     e_y_integral = np.zeros((2, 1))
 
     time = []
-    plotter = SimulationPlotter()
+    plotter = SimulationPlotterDash()
 
     u_offset = 0.1
 

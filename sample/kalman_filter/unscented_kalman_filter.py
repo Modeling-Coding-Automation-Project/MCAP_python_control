@@ -33,7 +33,7 @@ from dataclasses import dataclass
 from python_control.kalman_filter import UnscentedKalmanFilter_Basic, UnscentedKalmanFilter
 from python_control.control_deploy import ExpressionDeploy
 
-from sample.simulation_manager.visualize.simulation_plotter import SimulationPlotter
+from sample.simulation_manager.visualize.simulation_plotter_dash import SimulationPlotterDash
 
 
 @dataclass
@@ -177,7 +177,7 @@ def main():
 
         ukf.x_hat = np.array([[0.0], [0.0], [0.0]])  # initial state
 
-        plotter = SimulationPlotter()
+        plotter = SimulationPlotterDash()
 
         time = np.arange(0, simulation_time, sim_delta_time)
 
