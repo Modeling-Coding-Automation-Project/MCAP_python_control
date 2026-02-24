@@ -23,101 +23,119 @@ import astor
 
 class IntegerPowerReplacer(ast.NodeTransformer):
     """
-    A custom AST NodeTransformer that replaces integer power operations
-      with repeated multiplications.
-
-    This class traverses the abstract syntax tree (AST) of Python code
-      and transforms expressions of the form
-    `a ** n` (where `n` is a positive integer constant) into equivalent
-      repeated multiplication expressions,
-    i.e., `a * a * ... * a` (n times). This can be useful for code generation
-      or translation to languages that
-    do not support the power operator.
+    An AST transformer that replaces integer powers and n/2 (n odd) power
+    computations with repeated multiplication/division and sqrt().
     """
 
     def visit_BinOp(self, node):
-        """
-        Visits binary operation nodes in the AST.
-        If the operation is a power operation with a positive integer exponent,
-          it transforms it into repeated multiplication.
-        Args:
-            node (ast.BinOp): The binary operation node to visit.
-        Returns:
-            ast.AST: The transformed node, or the original node
-              if no transformation is applied.
-        """
-        # First visit children so nested power operations get transformed
+        # Process nested powers (e.g., (a**2)**3) first
         self.generic_visit(node)
 
-        # Helper to extract integer exponent value from node.right
-        def _get_int_exponent(rhs):
-            # Direct constant (Python 3.8+)
-            if isinstance(rhs, ast.Constant) and isinstance(rhs.value, int):
-                return rhs.value
-            # Unary minus literal like `-2` is parsed as UnaryOp(USub, Constant(2))
-            if isinstance(rhs, ast.UnaryOp) and isinstance(rhs.op, ast.USub):
-                operand = rhs.operand
-                if isinstance(operand, ast.Constant) and isinstance(operand.value, int):
-                    return -operand.value
-                if isinstance(operand, ast.Num) and isinstance(operand.n, int):
-                    return -operand.n
-            return None
-
-        exp_val = None
-        if isinstance(node.op, ast.Pow):
-            exp_val = _get_int_exponent(node.right)
-
-        # Only transform when exponent is an integer constant
-        if exp_val is None:
+        if not isinstance(node.op, ast.Pow):
             return node
 
-        n = exp_val
-        # Handle special case n == 0 -> return 1
-        if n == 0:
-            return ast.copy_location(ast.Constant(value=1), node)
+        # Helper function to parse exponent information
+        def _get_exponent_info(rhs):
+            # Case 1: simple integer constant (n) or negative integer (-n)
+            val = self._extract_int(rhs)
+            if val is not None:
+                return val, 1  # (value, denominator)
 
-        # Positive exponent: repeated multiplications a * a * ...
+            # Case 2: fraction form (n / 2)
+            if isinstance(rhs, ast.BinOp) and isinstance(rhs.op, ast.Div):
+                num = self._extract_int(rhs.left)
+                den = self._extract_int(rhs.right)
+                if num is not None and den == 2:
+                    return num, 2
+
+            return None, None
+
+        n, denominator = _get_exponent_info(node.right)
+        if n is None:
+            return node
+
+        # Create sqrt(a) node
+        def create_sqrt_node(base):
+            return ast.Call(
+                func=ast.Name(id='sqrt', ctx=ast.Load()),
+                args=[base],
+                keywords=[]
+            )
+
+        # If exponent is an integer (traditional behavior)
+        if denominator == 1:
+            return self._handle_integer_pow(node.left, n, node)
+
+        # If exponent is n/2 (new feature)
+        if denominator == 2 and n % 2 != 0:
+            abs_n = abs(n)
+            k = (abs_n - 1) // 2  # k part of a^(k + 0.5)
+
+            # Prepare sqrt(a)
+            sqrt_part = create_sqrt_node(node.left)
+
+            if n > 0:
+                # For positive exponent: a * a * ... * sqrt(a)
+                result = node.left
+                for _ in range(k):
+                    result = ast.BinOp(
+                        left=result, op=ast.Mult(), right=node.left)
+
+                # If k == 0 (i.e. 1/2 power), result = sqrt(a)
+                if k == 0:
+                    result = sqrt_part
+                else:
+                    result = ast.BinOp(
+                        left=result, op=ast.Mult(), right=sqrt_part)
+            else:
+                # For negative exponent: 1 / a / a / ... / sqrt(a)
+                result = ast.Constant(value=1)
+                for _ in range(k):
+                    result = ast.BinOp(
+                        left=result, op=ast.Div(), right=node.left)
+                result = ast.BinOp(left=result, op=ast.Div(), right=sqrt_part)
+
+            return ast.copy_location(result, node)
+
+        return node
+
+    def _extract_int(self, node):
+
+        if isinstance(node, ast.Constant) and isinstance(node.value, int):
+            return node.value
+        if isinstance(node, ast.UnaryOp) and isinstance(node.op, ast.USub):
+            if isinstance(node.operand, ast.Constant) and isinstance(node.operand.value, int):
+                return -node.operand.value
+        # for Compatibility (old Python)
+        if hasattr(ast, 'Num') and isinstance(node, ast.Num) and isinstance(node.n, int):
+            return node.n
+        return None
+
+    def _handle_integer_pow(self, base, n, original_node):
+
+        if n == 0:
+            return ast.copy_location(ast.Constant(value=1), original_node)
+
         if n > 0:
-            result = node.left
+            result = base
             for _ in range(n - 1):
-                result = ast.BinOp(left=result, op=ast.Mult(), right=node.left)
+                result = ast.BinOp(left=result, op=ast.Mult(), right=base)
+            return result
+        else:
+            abs_n = abs(n)
+            result = ast.Constant(value=1)
+            for _ in range(abs_n):
+                result = ast.BinOp(left=result, op=ast.Div(), right=base)
             return result
 
-        # Negative exponent: produce repeated divisions: 1 / a / a / ...
-        abs_n = abs(n)
-        result = ast.Constant(value=1)
-        for _ in range(abs_n):
-            result = ast.BinOp(left=result, op=ast.Div(), right=node.left)
-        return result
-
     def transform_code(self, source_code):
-        """
-        Transforms the given Python source code by replacing
-          integer power operations with an alternative implementation.
 
-        Args:
-            source_code (str): The Python source code to be transformed.
-
-        Returns:
-            str: The transformed Python source code
-              with integer power operations replaced.
-
-        Raises:
-            SyntaxError: If the provided source code cannot be parsed.
-        """
         tree = ast.parse(source_code)
-        transformer = IntegerPowerReplacer()
-        transformed_tree = transformer.visit(tree)
-
-        # Ensure location information is present for codegen
+        transformed_tree = self.visit(tree)
         ast.fix_missing_locations(transformed_tree)
-
         transformed_code = astor.to_source(transformed_tree)
 
-        if transformed_code.endswith("\n"):
-            transformed_code = transformed_code[:-1]
-
-        return transformed_code
+        return transformed_code.strip()
 
 
 class FunctionExtractor(ast.NodeVisitor):
