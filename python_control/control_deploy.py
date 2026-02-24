@@ -23,101 +23,174 @@ import astor
 
 class IntegerPowerReplacer(ast.NodeTransformer):
     """
-    A custom AST NodeTransformer that replaces integer power operations
-      with repeated multiplications.
-
-    This class traverses the abstract syntax tree (AST) of Python code
-      and transforms expressions of the form
-    `a ** n` (where `n` is a positive integer constant) into equivalent
-      repeated multiplication expressions,
-    i.e., `a * a * ... * a` (n times). This can be useful for code generation
-      or translation to languages that
-    do not support the power operator.
+    An AST transformer that replaces integer powers and n/2 (n odd) power
+    computations with repeated multiplication/division and sqrt().
     """
 
     def visit_BinOp(self, node):
         """
-        Visits binary operation nodes in the AST.
-        If the operation is a power operation with a positive integer exponent,
-          it transforms it into repeated multiplication.
+        Visit binary operation nodes and replace integer powers 
+        and n/2 (n odd) powers.
         Args:
             node (ast.BinOp): The binary operation node to visit.
         Returns:
-            ast.AST: The transformed node, or the original node
-              if no transformation is applied.
+            ast.AST: The transformed node with integer powers and
+              n/2 (n odd) powers replaced.
+        This method checks if the binary operation is a power operation.
+          If it is, it determines if the exponent is an integer or
+            of the form n/2 (where n is odd).
+        For integer powers, it replaces the power operation
+        with repeated multiplication or division.
+        For n/2 powers (where n is odd), it replaces the power operation
+          with repeated multiplication/division and sqrt().
         """
-        # First visit children so nested power operations get transformed
+        # Process nested powers (e.g., (a**2)**3) first
         self.generic_visit(node)
 
-        # Helper to extract integer exponent value from node.right
-        def _get_int_exponent(rhs):
-            # Direct constant (Python 3.8+)
-            if isinstance(rhs, ast.Constant) and isinstance(rhs.value, int):
-                return rhs.value
-            # Unary minus literal like `-2` is parsed as UnaryOp(USub, Constant(2))
-            if isinstance(rhs, ast.UnaryOp) and isinstance(rhs.op, ast.USub):
-                operand = rhs.operand
-                if isinstance(operand, ast.Constant) and isinstance(operand.value, int):
-                    return -operand.value
-                if isinstance(operand, ast.Num) and isinstance(operand.n, int):
-                    return -operand.n
-            return None
-
-        exp_val = None
-        if isinstance(node.op, ast.Pow):
-            exp_val = _get_int_exponent(node.right)
-
-        # Only transform when exponent is an integer constant
-        if exp_val is None:
+        if not isinstance(node.op, ast.Pow):
             return node
 
-        n = exp_val
-        # Handle special case n == 0 -> return 1
+        # Helper function to parse exponent information
+        def _get_exponent_info(rhs):
+            # Case 1: simple integer constant (n) or negative integer (-n)
+            val = self._extract_int(rhs)
+            if val is not None:
+                return val, 1  # (value, denominator)
+
+            # Case 2: fraction form (n / 2)
+            if isinstance(rhs, ast.BinOp) and isinstance(rhs.op, ast.Div):
+                num = self._extract_int(rhs.left)
+                den = self._extract_int(rhs.right)
+                if num is not None and den == 2:
+                    return num, 2
+
+            return None, None
+
+        n, denominator = _get_exponent_info(node.right)
+        if n is None:
+            return node
+
+        # Create sqrt(a) node
+        def create_sqrt_node(base):
+            return ast.Call(
+                func=ast.Name(id='sqrt', ctx=ast.Load()),
+                args=[base],
+                keywords=[]
+            )
+
+        # If exponent is an integer (traditional behavior)
+        if denominator == 1:
+            return self._handle_integer_pow(node.left, n, node)
+
+        # If exponent is n/2 (new feature)
+        if denominator == 2 and n % 2 != 0:
+            abs_n = abs(n)
+            k = (abs_n - 1) // 2  # k part of a^(k + 0.5)
+
+            # Prepare sqrt(a)
+            sqrt_part = create_sqrt_node(node.left)
+
+            if n > 0:
+                # For positive exponent: a^k * sqrt(a)
+                # Start with sqrt(a) and multiply by a k times
+                result = sqrt_part
+                for _ in range(k):
+                    result = ast.BinOp(
+                        left=node.left, op=ast.Mult(), right=result)
+            else:
+                # For negative exponent: 1 / a / a / ... / sqrt(a)
+                result = ast.Constant(value=1)
+                for _ in range(k):
+                    result = ast.BinOp(
+                        left=result, op=ast.Div(), right=node.left)
+                result = ast.BinOp(left=result, op=ast.Div(), right=sqrt_part)
+
+            return ast.copy_location(result, node)
+
+        return node
+
+    def _extract_int(self, node):
+        """
+        Extracts an integer value from an AST node
+        if it represents an integer constant or a negative integer.
+        Args:
+        node (ast.AST): The AST node to extract the integer from.
+        Returns:
+        int or None: The extracted integer value if the node represents
+          an integer constant or a negative integer, otherwise None.
+        This method checks if the given AST node represents
+          an integer constant (e.g., 3) or a negative integer (e.g., -3).
+            If the node is an
+        instance of `ast.Constant` with an integer value,
+          it returns the integer. If the node is an `ast.UnaryOp`
+            with a `USub` operator and an integer operand,
+              it returns the negated integer.
+        """
+        if isinstance(node, ast.Constant) and isinstance(node.value, int):
+            return node.value
+        if isinstance(node, ast.UnaryOp) and isinstance(node.op, ast.USub):
+            if isinstance(node.operand, ast.Constant) and isinstance(node.operand.value, int):
+                return -node.operand.value
+        # for Compatibility (old Python)
+        if hasattr(ast, 'Num') and isinstance(node, ast.Num) and isinstance(node.n, int):
+            return node.n
+        return None
+
+    def _handle_integer_pow(self, base, n, original_node):
+        """
+        Handles integer power computations by replacing them
+          with repeated multiplication or division.
+        Args:
+            base (ast.AST): The base of the power operation.
+            n (int): The integer exponent.
+            original_node (ast.AST): The original AST node
+              for location information.
+        Returns:
+            ast.AST: The transformed AST node representing the
+              integer power computation.
+        This method takes a base and an integer exponent n,
+          and constructs an AST node that represents
+          the result of raising the base to the power of n
+            using repeated multiplication (for positive n)
+            or repeated division (for negative n).
+              If n is zero, it returns a constant node with value 1.
+        """
         if n == 0:
-            return ast.copy_location(ast.Constant(value=1), node)
+            return ast.copy_location(ast.Constant(value=1), original_node)
 
-        # Positive exponent: repeated multiplications a * a * ...
         if n > 0:
-            result = node.left
+            result = base
             for _ in range(n - 1):
-                result = ast.BinOp(left=result, op=ast.Mult(), right=node.left)
+                result = ast.BinOp(left=result, op=ast.Mult(), right=base)
             return result
-
-        # Negative exponent: produce repeated divisions: 1 / a / a / ...
-        abs_n = abs(n)
-        result = ast.Constant(value=1)
-        for _ in range(abs_n):
-            result = ast.BinOp(left=result, op=ast.Div(), right=node.left)
-        return result
+        else:
+            abs_n = abs(n)
+            result = ast.Constant(value=1)
+            for _ in range(abs_n):
+                result = ast.BinOp(left=result, op=ast.Div(), right=base)
+            return result
 
     def transform_code(self, source_code):
         """
-        Transforms the given Python source code by replacing
-          integer power operations with an alternative implementation.
-
+        Transforms the given source code by replacing
+         integer powers and n/2 (n odd) powers.
         Args:
-            source_code (str): The Python source code to be transformed.
-
+            source_code (str): The source code to transform.
         Returns:
-            str: The transformed Python source code
-              with integer power operations replaced.
-
-        Raises:
-            SyntaxError: If the provided source code cannot be parsed.
-        """
+            str: The transformed source code with integer powers
+              and n/2 (n odd) powers replaced.
+        This method takes a string of source code,
+          parses it into an abstract syntax tree (AST),
+          applies the transformations to replace integer powers
+            and n/2 (n odd) powers,
+          and then converts the modified AST back into source code.
+          """
         tree = ast.parse(source_code)
-        transformer = IntegerPowerReplacer()
-        transformed_tree = transformer.visit(tree)
-
-        # Ensure location information is present for codegen
+        transformed_tree = self.visit(tree)
         ast.fix_missing_locations(transformed_tree)
-
         transformed_code = astor.to_source(transformed_tree)
 
-        if transformed_code.endswith("\n"):
-            transformed_code = transformed_code[:-1]
-
-        return transformed_code
+        return transformed_code.strip()
 
 
 class FunctionExtractor(ast.NodeVisitor):
