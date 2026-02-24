@@ -28,6 +28,22 @@ class IntegerPowerReplacer(ast.NodeTransformer):
     """
 
     def visit_BinOp(self, node):
+        """
+        Visit binary operation nodes and replace integer powers 
+        and n/2 (n odd) powers.
+        Args:
+            node (ast.BinOp): The binary operation node to visit.
+        Returns:
+            ast.AST: The transformed node with integer powers and
+              n/2 (n odd) powers replaced.
+        This method checks if the binary operation is a power operation.
+          If it is, it determines if the exponent is an integer or
+            of the form n/2 (where n is odd).
+        For integer powers, it replaces the power operation
+        with repeated multiplication or division.
+        For n/2 powers (where n is odd), it replaces the power operation
+          with repeated multiplication/division and sqrt().
+        """
         # Process nested powers (e.g., (a**2)**3) first
         self.generic_visit(node)
 
@@ -94,7 +110,22 @@ class IntegerPowerReplacer(ast.NodeTransformer):
         return node
 
     def _extract_int(self, node):
-
+        """
+        Extracts an integer value from an AST node
+        if it represents an integer constant or a negative integer.
+        Args:
+        node (ast.AST): The AST node to extract the integer from.
+        Returns:
+        int or None: The extracted integer value if the node represents
+          an integer constant or a negative integer, otherwise None.
+        This method checks if the given AST node represents
+          an integer constant (e.g., 3) or a negative integer (e.g., -3).
+            If the node is an
+        instance of `ast.Constant` with an integer value,
+          it returns the integer. If the node is an `ast.UnaryOp`
+            with a `USub` operator and an integer operand,
+              it returns the negated integer.
+        """
         if isinstance(node, ast.Constant) and isinstance(node.value, int):
             return node.value
         if isinstance(node, ast.UnaryOp) and isinstance(node.op, ast.USub):
@@ -106,7 +137,24 @@ class IntegerPowerReplacer(ast.NodeTransformer):
         return None
 
     def _handle_integer_pow(self, base, n, original_node):
-
+        """
+        Handles integer power computations by replacing them
+          with repeated multiplication or division.
+        Args:
+            base (ast.AST): The base of the power operation.
+            n (int): The integer exponent.
+            original_node (ast.AST): The original AST node
+              for location information.
+        Returns:
+            ast.AST: The transformed AST node representing the
+              integer power computation.
+        This method takes a base and an integer exponent n,
+          and constructs an AST node that represents
+          the result of raising the base to the power of n
+            using repeated multiplication (for positive n)
+            or repeated division (for negative n).
+              If n is zero, it returns a constant node with value 1.
+        """
         if n == 0:
             return ast.copy_location(ast.Constant(value=1), original_node)
 
@@ -123,7 +171,20 @@ class IntegerPowerReplacer(ast.NodeTransformer):
             return result
 
     def transform_code(self, source_code):
-
+        """
+        Transforms the given source code by replacing
+         integer powers and n/2 (n odd) powers.
+        Args:
+            source_code (str): The source code to transform.
+        Returns:
+            str: The transformed source code with integer powers
+              and n/2 (n odd) powers replaced.
+        This method takes a string of source code,
+          parses it into an abstract syntax tree (AST),
+          applies the transformations to replace integer powers
+            and n/2 (n odd) powers,
+          and then converts the modified AST back into source code.
+          """
         tree = ast.parse(source_code)
         transformed_tree = self.visit(tree)
         ast.fix_missing_locations(transformed_tree)
