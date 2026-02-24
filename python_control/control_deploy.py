@@ -75,18 +75,12 @@ class IntegerPowerReplacer(ast.NodeTransformer):
             sqrt_part = create_sqrt_node(node.left)
 
             if n > 0:
-                # For positive exponent: a * a * ... * sqrt(a)
-                result = node.left
+                # For positive exponent: a^k * sqrt(a)
+                # Start with sqrt(a) and multiply by a k times
+                result = sqrt_part
                 for _ in range(k):
                     result = ast.BinOp(
-                        left=result, op=ast.Mult(), right=node.left)
-
-                # If k == 0 (i.e. 1/2 power), result = sqrt(a)
-                if k == 0:
-                    result = sqrt_part
-                else:
-                    result = ast.BinOp(
-                        left=result, op=ast.Mult(), right=sqrt_part)
+                        left=node.left, op=ast.Mult(), right=result)
             else:
                 # For negative exponent: 1 / a / a / ... / sqrt(a)
                 result = ast.Constant(value=1)
