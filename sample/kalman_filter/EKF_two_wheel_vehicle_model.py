@@ -3,7 +3,7 @@ Extended Kalman Filter for Two-Wheel Vehicle Model
 
 This module implements an Extended Kalman Filter (EKF) for estimating the state
 of a two-wheel vehicle model. It uses symbolic mathematics to derive the state
-and measurement functions, along with their Jacobians, and then deploys them
+and measurement equations, along with their Jacobians, and then deploys them
 as executable Python functions.
 
 The vehicle model includes:
@@ -94,27 +94,27 @@ def create_model(delta_time: float):
     ])
     fxu: sp.Matrix = X + fxu_continuous * delta_time
 
-    print("State Function (fxu):")
+    print("State Equation (fxu):")
     sp.pprint(fxu)
 
     hx = sp.Matrix([[X[0]], [X[1]], [X[2]], [X[3]], [X[5]]])
-    print("Measurement Function (hx):")
+    print("Measurement Equation (hx):")
     sp.pprint(hx)
 
     # derive Jacobian
     fxu_jacobian = fxu.jacobian(X)
     hx_jacobian = hx.jacobian(X)
 
-    fxu_file_name = ExpressionDeploy.write_state_function_code_from_sympy(
+    fxu_file_name = ExpressionDeploy.write_state_equation_code_from_sympy(
         fxu, X, U)
     fxu_jacobian_file_name = \
-        ExpressionDeploy.write_state_function_code_from_sympy(
+        ExpressionDeploy.write_state_equation_code_from_sympy(
             fxu_jacobian, X, U)
 
-    hx_file_name = ExpressionDeploy.write_measurement_function_code_from_sympy(
+    hx_file_name = ExpressionDeploy.write_measurement_equation_code_from_sympy(
         hx, X)
     hx_jacobian_file_name = \
-        ExpressionDeploy.write_measurement_function_code_from_sympy(
+        ExpressionDeploy.write_measurement_equation_code_from_sympy(
             hx_jacobian, X)
 
     return X, U, Y, \
@@ -165,10 +165,10 @@ def main():
     hx_jacobian_script_function = local_vars["hx_jacobian_script_function"]
 
     ekf = ExtendedKalmanFilter(
-        state_function=fxu_script_function,
-        measurement_function=hx_script_function,
-        state_function_jacobian=fxu_jacobian_script_function,
-        measurement_function_jacobian=hx_jacobian_script_function,
+        state_equation=fxu_script_function,
+        measurement_equation=hx_script_function,
+        state_equation_jacobian=fxu_jacobian_script_function,
+        measurement_equation_jacobian=hx_jacobian_script_function,
         Q=Q_ekf,
         R=R_ekf,
         Parameters=parameters_ekf

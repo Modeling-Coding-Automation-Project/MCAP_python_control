@@ -3,7 +3,7 @@ File: unscented_kalman_filter.py
 
 This script demonstrates the implementation and simulation of
 an Unscented Kalman Filter (UKF) for a bicycle model with delayed measurements.
-The code defines the nonlinear state transition and measurement functions
+The code defines the nonlinear state transition and measurement equations
 using symbolic computation, generates deployable code for these functions,
 and sets up a UKF to estimate the state of a simulated vehicle moving
 in a 2D plane with two landmarks as references.
@@ -86,9 +86,9 @@ def main():
                        [sympy.atan2(landmark_2_y - y, landmark_2_x - x) - theta]])
 
     # Save functions to separate files
-    fxu_file_name = ExpressionDeploy.write_state_function_code_from_sympy(
+    fxu_file_name = ExpressionDeploy.write_state_equation_code_from_sympy(
         fxu, X, U)
-    hx_file_name = ExpressionDeploy.write_measurement_function_code_from_sympy(
+    hx_file_name = ExpressionDeploy.write_measurement_equation_code_from_sympy(
         hx, X)
 
     # %% design EKF
