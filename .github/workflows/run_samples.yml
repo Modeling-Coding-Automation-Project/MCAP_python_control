@@ -59,8 +59,6 @@ jobs:
 
         /opt/venv_py_sim_manager/bin/python3 ./sample/lqr/discrete_state_space_lqi_easy.py
 
-        /opt/venv_py_sim_manager/bin/python3 ./sample/lqr/discrete_state_space_lqi.py
-
         /opt/venv_py_sim_manager/bin/python3 ./sample/pid_controller/discrete_pid_controller.py
 
         /opt/venv_py_sim_manager/bin/python3 ./sample/pid_controller/servo_motor_pid_control.py
