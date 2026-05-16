@@ -1,0 +1,81 @@
+name: Run samples
+
+on:
+  push:
+    branches:
+    - develop
+
+jobs:
+  run_samples:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        define:
+        - ''
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        submodules: recursive
+    - name: Install dependencies
+      run: 'sudo apt update
+
+        sudo apt install -y build-essential
+
+        sudo apt install -y python3.12
+
+        sudo apt install -y python3.12-dev
+
+        sudo apt install -y python3.12-venv
+
+        '
+    - name: Set up Python environment
+      run: 'python3.12 -m venv /opt/venv_py_sim_manager
+
+        /opt/venv_py_sim_manager/bin/pip install --upgrade pip
+
+        /opt/venv_py_sim_manager/bin/pip install --upgrade setuptools
+
+        /opt/venv_py_sim_manager/bin/pip install numpy matplotlib mplcursors plotly dash scipy sympy control
+
+        '
+    - name: Run samples
+      env:
+        MPLBACKEND: Agg
+      run: '/opt/venv_py_sim_manager/bin/python3 ./sample/transfer_function/discrete_transfer_function_2_4.py
+
+        /opt/venv_py_sim_manager/bin/python3 ./sample/transfer_function/discrete_transfer_function_3_4.py
+
+        /opt/venv_py_sim_manager/bin/python3 ./sample/transfer_function/discrete_transfer_function_4_4.py
+
+        /opt/venv_py_sim_manager/bin/python3 ./sample/state_space/discrete_state_space_1.py
+
+        /opt/venv_py_sim_manager/bin/python3 ./sample/state_space/discrete_state_space_2.py
+
+        /opt/venv_py_sim_manager/bin/python3 ./sample/lqr/discrete_state_space_lqr.py
+
+        /opt/venv_py_sim_manager/bin/python3 ./sample/lqr/discrete_state_space_lqi_easy.py
+
+        /opt/venv_py_sim_manager/bin/python3 ./sample/lqr/discrete_state_space_lqi.py
+
+        /opt/venv_py_sim_manager/bin/python3 ./sample/pid_controller/discrete_pid_controller.py
+
+        /opt/venv_py_sim_manager/bin/python3 ./sample/pid_controller/servo_motor_pid_control.py
+
+        /opt/venv_py_sim_manager/bin/python3 ./sample/least_squares/least_squares_method.py
+
+        /opt/venv_py_sim_manager/bin/python3 ./sample/least_squares/recursive_squares_method.py
+
+        /opt/venv_py_sim_manager/bin/python3 ./sample/kalman_filter/linear_kalman_filter.py
+
+        /opt/venv_py_sim_manager/bin/python3 ./sample/kalman_filter/lkf_fixed_G.py
+
+        /opt/venv_py_sim_manager/bin/python3 ./sample/kalman_filter/extended_kalman_filter.py
+
+        /opt/venv_py_sim_manager/bin/python3 ./sample/kalman_filter/EKF_two_wheel_vehicle_model.py
+
+        /opt/venv_py_sim_manager/bin/python3 ./sample/kalman_filter/unscented_kalman_filter.py
+
+        '
