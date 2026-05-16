@@ -38,7 +38,8 @@ jobs:
 
         /opt/venv_py_sim_manager/bin/pip install --upgrade setuptools
 
-        /opt/venv_py_sim_manager/bin/pip install numpy matplotlib mplcursors plotly dash scipy sympy control astor
+        /opt/venv_py_sim_manager/bin/pip install numpy matplotlib mplcursors plotly
+        dash scipy sympy control astor
 
         '
     - name: Run samples
