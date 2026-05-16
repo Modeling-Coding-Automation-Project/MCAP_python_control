@@ -91,4 +91,7 @@ for i in range(100):
     print(y_0[i], ", ", y_1[i], ",")
 
 # show results
-plt.show()
+if os.environ.get('CI') or os.environ.get('GITHUB_ACTIONS'):
+    print("Headless environment detected. Skipping Dash server launch.")
+else:
+    plt.show()

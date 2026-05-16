@@ -48,4 +48,7 @@ for i in range(len(yout_ss_d)):
     print(yout_ss_d[i], ",")
 
 # show results
-plt.show()
+if os.environ.get('CI') or os.environ.get('GITHUB_ACTIONS'):
+    print("Headless environment detected. Skipping Dash server launch.")
+else:
+    plt.show()
