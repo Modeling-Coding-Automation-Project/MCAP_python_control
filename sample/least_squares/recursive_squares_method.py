@@ -68,11 +68,11 @@ axs[2].legend()
 axs[2].grid(True)
 
 
-plotter.assign("weights_predicted", column=0, row=0, position=(0, 0))
-plotter.assign("weights_true", column=0, row=0, position=(0, 0))
-plotter.assign("weights_predicted", column=1, row=0, position=(1, 0))
-plotter.assign("weights_true", column=1, row=0, position=(1, 0))
-plotter.assign("weights_predicted", column=2, row=0, position=(2, 0))
-plotter.assign("weights_true", column=2, row=0, position=(2, 0))
+plotter.assign("weights_predicted", row=0, column=0, position=(0, 0))
+plotter.assign("weights_true", row=0, column=0, position=(0, 0))
+plotter.assign("weights_predicted", row=1, column=0, position=(1, 0))
+plotter.assign("weights_true", row=1, column=0, position=(1, 0))
+plotter.assign("weights_predicted", row=2, column=0, position=(2, 0))
+plotter.assign("weights_true", row=2, column=0, position=(2, 0))
 
 plotter.plot("Discrete-Time State-Space Response")
