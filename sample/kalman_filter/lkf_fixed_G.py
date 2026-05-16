@@ -91,17 +91,17 @@ def main():
         plotter.append_name(y_measured, "y_measured")
 
     # Plot
-    plotter.assign("x_true", column=0, row=0, position=(0, 0), x_sequence=time)
-    plotter.assign("x_estimate", column=0, row=0,
+    plotter.assign("x_true", row=0, column=0, position=(0, 0), x_sequence=time)
+    plotter.assign("x_estimate", row=0, column=0,
                    position=(0, 0), x_sequence=time)
-    plotter.assign("x_true", column=1, row=0, position=(1, 0), x_sequence=time)
-    plotter.assign("x_estimate", column=1, row=0,
+    plotter.assign("x_true", row=1, column=0, position=(1, 0), x_sequence=time)
+    plotter.assign("x_estimate", row=1, column=0,
                    position=(1, 0), x_sequence=time)
 
-    plotter.assign("y_measured", column=0, row=0,
+    plotter.assign("y_measured", row=0, column=0,
                    position=(0, 1), x_sequence=time)
 
-    plotter.assign("u", column=0, row=0, position=(1, 1), x_sequence=time)
+    plotter.assign("u", row=0, column=0, position=(1, 1), x_sequence=time)
 
     plotter.plot("True state and observation")
 

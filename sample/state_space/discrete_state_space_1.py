@@ -47,8 +47,8 @@ for _ in range(n_steps):
     plotter.append(x)
     plotter.append(y)
 
-plotter.assign("x", column=0, row=0, position=(0, 0))
-plotter.assign("x", column=1, row=0, position=(0, 0))
-plotter.assign("y", column=0, row=0, position=(1, 0))
+plotter.assign("x", row=0, column=0, position=(0, 0))
+plotter.assign("x", row=1, column=0, position=(0, 0))
+plotter.assign("y", row=0, column=0, position=(1, 0))
 
 plotter.plot("Discrete-Time State-Space Response")

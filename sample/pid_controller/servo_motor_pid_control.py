@@ -103,23 +103,23 @@ if __name__ == "__main__":
         plotter.append_name(u_offset, "u_offset")
         plotter.append_name(system_noise, "system_noise")
 
-    plotter.assign("theta_ref", column=0, row=0, position=(0, 0),
+    plotter.assign("theta_ref", row=0, column=0, position=(0, 0),
                    x_sequence=time, label="reference θ")
-    plotter.assign("y", column=0, row=0, position=(0, 0),
+    plotter.assign("y", row=0, column=0, position=(0, 0),
                    x_sequence=time, label="position θ")
-    plotter.assign("y", column=1, row=0, position=(1, 0),
+    plotter.assign("y", row=1, column=0, position=(1, 0),
                    x_sequence=time, label="speed ω")
 
-    plotter.assign("u", column=0, row=0, position=(2, 0),
+    plotter.assign("u", row=0, column=0, position=(2, 0),
                    x_sequence=time, label="voltage V")
-    plotter.assign("u_max", column=0, row=0, position=(2, 0),
+    plotter.assign("u_max", row=0, column=0, position=(2, 0),
                    x_sequence=time, label="voltage max", line_style="--")
-    plotter.assign("u_min", column=0, row=0, position=(2, 0),
+    plotter.assign("u_min", row=0, column=0, position=(2, 0),
                    x_sequence=time, label="voltage min", line_style="--")
 
-    plotter.assign("u_offset", column=0, row=0, position=(0, 1),
+    plotter.assign("u_offset", row=0, column=0, position=(0, 1),
                    x_sequence=time, label="voltage offset")
-    plotter.assign("system_noise", column=0, row=0, position=(1, 1),
+    plotter.assign("system_noise", row=0, column=0, position=(1, 1),
                    x_sequence=time, label="system noise")
 
     plotter.plot()
