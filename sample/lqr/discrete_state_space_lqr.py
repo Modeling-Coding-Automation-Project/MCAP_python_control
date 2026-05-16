@@ -174,16 +174,16 @@ def main_reference_tracking():
         t += dt
 
     # plot
-    plotter.assign("x", column=0, row=0, position=(
+    plotter.assign("x", row=0, column=0, position=(
         0, 0), x_sequence=time, label="px")
-    plotter.assign("x", column=2, row=0, position=(
+    plotter.assign("x", row=2, column=0, position=(
         0, 0), x_sequence=time, label="theta")
-    plotter.assign("x_ref", column=0, row=0, position=(0, 0),
+    plotter.assign("x_ref", row=0, column=0, position=(0, 0),
                    x_sequence=time, line_style="--", label="px_ref")
-    plotter.assign("x_ref", column=2, row=0, position=(0, 0),
+    plotter.assign("x_ref", row=2, column=0, position=(0, 0),
                    x_sequence=time, line_style="--", label="theta_ref")
 
-    plotter.assign("u", column=0, row=0, position=(
+    plotter.assign("u", row=0, column=0, position=(
         1, 0), x_sequence=time, label="input_force")
 
     plotter.plot("LQR Tracking")

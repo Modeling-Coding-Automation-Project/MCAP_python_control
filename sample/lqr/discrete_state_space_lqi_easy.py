@@ -154,12 +154,12 @@ def main_reference_tracking():
         time.append(t)
         t += dt
 
-    plotter.assign("x", column=0, row=0, position=(0, 0), x_sequence=time)
-    plotter.assign("x", column=1, row=0, position=(0, 0), x_sequence=time)
-    plotter.assign("y_ref", column=0, row=0, position=(
+    plotter.assign("x", row=0, column=0, position=(0, 0), x_sequence=time)
+    plotter.assign("x", row=1, column=0, position=(0, 0), x_sequence=time)
+    plotter.assign("y_ref", row=0, column=0, position=(
         0, 0), x_sequence=time, line_style="--")
 
-    plotter.assign("u", column=0, row=0, position=(1, 0), x_sequence=time)
+    plotter.assign("u", row=0, column=0, position=(1, 0), x_sequence=time)
 
     plotter.plot("LQI Tracking")
 

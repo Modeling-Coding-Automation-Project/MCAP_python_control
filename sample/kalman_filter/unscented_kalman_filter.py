@@ -207,34 +207,34 @@ def main():
             plotter.append(u)
 
         # plot
-        plotter.assign("x_true", column=0, row=0, position=(0, 0),
+        plotter.assign("x_true", row=0, column=0, position=(0, 0),
                        x_sequence=time, label="px_true")
-        plotter.assign("x_estimated", column=0, row=0, position=(0, 0),
+        plotter.assign("x_estimated", row=0, column=0, position=(0, 0),
                        x_sequence=time, label="px_estimated")
 
-        plotter.assign("x_true", column=1, row=0, position=(1, 0),
+        plotter.assign("x_true", row=1, column=0, position=(1, 0),
                        x_sequence=time, label="py_true")
-        plotter.assign("x_estimated", column=1, row=0, position=(1, 0),
+        plotter.assign("x_estimated", row=1, column=0, position=(1, 0),
                        x_sequence=time, label="px_estimated")
 
-        plotter.assign("x_true", column=2, row=0, position=(2, 0),
+        plotter.assign("x_true", row=2, column=0, position=(2, 0),
                        x_sequence=time, label="theta_true")
-        plotter.assign("x_estimated", column=2, row=0, position=(2, 0),
+        plotter.assign("x_estimated", row=2, column=0, position=(2, 0),
                        x_sequence=time, label="theta_estimated")
 
-        plotter.assign("u", column=0, row=0, position=(0, 1),
+        plotter.assign("u", row=0, column=0, position=(0, 1),
                        x_sequence=time, label="v")
-        plotter.assign("u", column=1, row=0, position=(0, 1),
+        plotter.assign("u", row=1, column=0, position=(0, 1),
                        x_sequence=time, label="steering_angle")
 
-        plotter.assign("y_measured", column=0, row=0, position=(1, 1),
+        plotter.assign("y_measured", row=0, column=0, position=(1, 1),
                        x_sequence=time, label="r_landmark_1")
-        plotter.assign("y_measured", column=2, row=0, position=(1, 1),
+        plotter.assign("y_measured", row=2, column=0, position=(1, 1),
                        x_sequence=time, label="r_landmark_2")
 
-        plotter.assign("y_measured", column=1, row=0, position=(2, 1),
+        plotter.assign("y_measured", row=1, column=0, position=(2, 1),
                        x_sequence=time, label="angle_landmark_1")
-        plotter.assign("y_measured", column=3, row=0, position=(2, 1),
+        plotter.assign("y_measured", row=3, column=0, position=(2, 1),
                        x_sequence=time, label="angle_landmark_2")
 
         plotter.plot("UKF for bicycle model results")

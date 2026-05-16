@@ -53,4 +53,7 @@ axs[2].plot(offset, label="offset")
 axs[2].legend()
 axs[2].grid(True)
 
-plt.show()
+if os.environ.get('CI') or os.environ.get('GITHUB_ACTIONS'):
+    print("Headless environment detected. Skipping Dash server launch.")
+else:
+    plt.show()
