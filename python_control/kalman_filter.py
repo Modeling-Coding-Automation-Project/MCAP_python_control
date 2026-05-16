@@ -263,12 +263,12 @@ class LinearKalmanFilter(KalmanFilterCommon):
 class ExtendedKalmanFilter(KalmanFilterCommon):
     """
     ExtendedKalmanFilter implements an extended Kalman filter for nonlinear systems.
-    It uses nonlinear state and measurement functions, along with their Jacobians.
+    It uses nonlinear state and measurement equations, along with their Jacobians.
     Attributes:
-        state_function (callable): Nonlinear state transition function.
-        measurement_function (callable): Nonlinear measurement function.
-        state_function_jacobian (callable): Jacobian of the state function.
-        measurement_function_jacobian (callable): Jacobian of the measurement function.
+        state_equation (callable): Nonlinear state transition function.
+        measurement_equation (callable): Nonlinear measurement equation.
+        state_equation_jacobian (callable): Jacobian of the state equation.
+        measurement_equation_jacobian (callable): Jacobian of the measurement equation.
         A (np.ndarray): State transition Jacobian matrix.
         C (np.ndarray): Measurement Jacobian matrix.
         Q (np.ndarray): Process noise covariance matrix.
@@ -279,14 +279,14 @@ class ExtendedKalmanFilter(KalmanFilterCommon):
         u_store (DelayedVectorObject): Object to handle delayed input vectors.
     """
 
-    def __init__(self, state_function, measurement_function,
-                 state_function_jacobian, measurement_function_jacobian,
+    def __init__(self, state_equation, measurement_equation,
+                 state_equation_jacobian, measurement_equation_jacobian,
                  Q: np.ndarray, R: np.ndarray, Parameters=None, Number_of_Delay=0):
         super().__init__(Number_of_Delay)
-        self.state_function = state_function
-        self.measurement_function = measurement_function
-        self.state_function_jacobian = state_function_jacobian
-        self.measurement_function_jacobian = measurement_function_jacobian
+        self.state_equation = state_equation
+        self.measurement_equation = measurement_equation
+        self.state_equation_jacobian = state_equation_jacobian
+        self.measurement_equation_jacobian = measurement_equation_jacobian
 
         self.A = np.zeros(Q.shape)
         self.C = np.zeros((R.shape[0], Q.shape[0]))
@@ -315,9 +315,9 @@ class ExtendedKalmanFilter(KalmanFilterCommon):
         if self._input_count < self.Number_of_Delay:
             self._input_count += 1
         else:
-            self.A = self.state_function_jacobian(
+            self.A = self.state_equation_jacobian(
                 self.x_hat, self.u_store.get(), self.Parameters)
-            self.x_hat = self.state_function(
+            self.x_hat = self.state_equation(
                 self.x_hat, self.u_store.get(), self.Parameters)
             self.P = self.A @ self.P @ self.A.T + self.Q
 
@@ -327,14 +327,14 @@ class ExtendedKalmanFilter(KalmanFilterCommon):
         Args:
             y (np.ndarray): Measurement vector for the update step.
         """
-        self.C = self.measurement_function_jacobian(
+        self.C = self.measurement_equation_jacobian(
             self.x_hat, self.Parameters)
 
         P_CT_matrix = self.P @ self.C.T
 
         S_matrix = self.C @ P_CT_matrix + self.R
         self.G = P_CT_matrix @ np.linalg.inv(S_matrix)
-        self.x_hat = self.x_hat + self.G @ (y - self.measurement_function(
+        self.x_hat = self.x_hat + self.G @ (y - self.measurement_equation(
             self.x_hat, self.Parameters))
 
         self.P = (np.eye(self.A.shape[0]) - self.G @ self.C) @ self.P
@@ -357,7 +357,7 @@ class ExtendedKalmanFilter(KalmanFilterCommon):
                 if delay_index > self.Number_of_Delay:
                     delay_index = delay_index - self.Number_of_Delay - 1
 
-                x_hat = self.state_function(
+                x_hat = self.state_equation(
                     x_hat, self.u_store.get_by_index(delay_index), self.Parameters)
 
             return x_hat
@@ -366,10 +366,10 @@ class ExtendedKalmanFilter(KalmanFilterCommon):
 class UnscentedKalmanFilter_Basic(KalmanFilterCommon):
     """
     UnscentedKalmanFilter_Basic implements a basic unscented Kalman filter for nonlinear systems.
-    It uses nonlinear state and measurement functions, along with a method to calculate sigma points.
+    It uses nonlinear state and measurement equations, along with a method to calculate sigma points.
     Attributes:
-        state_function (callable): Nonlinear state transition function.
-        measurement_function (callable): Nonlinear measurement function.
+        state_equation (callable): Nonlinear state transition function.
+        measurement_equation (callable): Nonlinear measurement equation.
         Q (np.ndarray): Process noise covariance matrix.
         R (np.ndarray): Measurement noise covariance matrix.
         x_hat (np.ndarray): Current state estimate.
@@ -378,12 +378,12 @@ class UnscentedKalmanFilter_Basic(KalmanFilterCommon):
         u_store (DelayedVectorObject): Object to handle delayed input vectors.
     """
 
-    def __init__(self, state_function, measurement_function,
+    def __init__(self, state_equation, measurement_equation,
                  Q: np.ndarray, R: np.ndarray, Parameters=None,
                  Number_of_Delay=0, kappa=0.0):
         super().__init__(Number_of_Delay)
-        self.state_function = state_function
-        self.measurement_function = measurement_function
+        self.state_equation = state_equation
+        self.measurement_equation = measurement_equation
 
         self.Q = Q
         self.R = R
@@ -461,7 +461,7 @@ class UnscentedKalmanFilter_Basic(KalmanFilterCommon):
             Kai = self.calc_sigma_points(self.x_hat, self.P)
 
             for i in range(2 * self.STATE_SIZE + 1):
-                Kai[:, i] = self.state_function(
+                Kai[:, i] = self.state_equation(
                     Kai[:, i].reshape(-1, 1), u, self.Parameters).flatten()
 
             self.x_hat = np.zeros((self.STATE_SIZE, 1))
@@ -484,7 +484,7 @@ class UnscentedKalmanFilter_Basic(KalmanFilterCommon):
 
         Y_d = np.zeros((self.OUTPUT_SIZE, 2 * self.STATE_SIZE + 1))
         for i in range(2 * self.STATE_SIZE + 1):
-            Y_d[:, i] = self.measurement_function(
+            Y_d[:, i] = self.measurement_equation(
                 Kai[:, i].reshape(-1, 1), self.Parameters).flatten()
 
         y_hat_m = np.zeros((self.OUTPUT_SIZE, 1))
@@ -520,7 +520,7 @@ class UnscentedKalmanFilter_Basic(KalmanFilterCommon):
                 if delay_index > self.Number_of_Delay:
                     delay_index = delay_index - self.Number_of_Delay - 1
 
-                x_hat = self.state_function(
+                x_hat = self.state_equation(
                     x_hat, self.u_store.get_by_index(delay_index), self.Parameters)
 
             return x_hat
@@ -536,7 +536,7 @@ class UnscentedKalmanFilter(UnscentedKalmanFilter_Basic):
         beta (float): Parameter for the optimality of the filter.
     """
 
-    def __init__(self, state_function, measurement_function,
+    def __init__(self, state_equation, measurement_equation,
                  Q: np.ndarray, R: np.ndarray, Parameters=None,
                  Number_of_Delay=0, kappa=0.0, alpha=0.5, beta=2.0):
 
@@ -552,7 +552,7 @@ class UnscentedKalmanFilter(UnscentedKalmanFilter_Basic):
 
         self.w_m = 0.0
 
-        super().__init__(state_function, measurement_function,
+        super().__init__(state_equation, measurement_equation,
                          Q, R, Parameters, Number_of_Delay, self.kappa)
 
     def calc_weights(self):
@@ -589,7 +589,7 @@ class UnscentedKalmanFilter(UnscentedKalmanFilter_Basic):
             Kai = self.calc_sigma_points(self.x_hat, self.P)
 
             for i in range(2 * self.STATE_SIZE + 1):
-                Kai[:, i] = self.state_function(
+                Kai[:, i] = self.state_equation(
                     Kai[:, i].reshape(-1, 1), u, self.Parameters).flatten()
 
             self.x_hat = self.w_m * Kai[:, 0].reshape(-1, 1)
@@ -612,7 +612,7 @@ class UnscentedKalmanFilter(UnscentedKalmanFilter_Basic):
 
         Y_d = np.zeros((self.OUTPUT_SIZE, 2 * self.STATE_SIZE + 1))
         for i in range(2 * self.STATE_SIZE + 1):
-            Y_d[:, i] = self.measurement_function(
+            Y_d[:, i] = self.measurement_equation(
                 Kai[:, i].reshape(-1, 1), self.Parameters).flatten()
 
         y_hat_m = self.w_m * Y_d[:, 0].reshape(-1, 1)

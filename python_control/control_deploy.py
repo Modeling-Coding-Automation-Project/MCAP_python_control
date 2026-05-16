@@ -427,10 +427,10 @@ class ExpressionDeploy:
             total_code, f"{sym_object_name}.py")
 
     @staticmethod
-    def write_state_function_code_from_sympy(
+    def write_state_equation_code_from_sympy(
             sym_object, X, U=None, file_name: str = None):
         """
-        Writes the generated C++ code for a Kalman filter state function based on a symbolic representation.
+        Writes the generated C++ code for a Kalman filter state equation based on a symbolic representation.
         Args:
             sym_object (sympy.Matrix): A sympy Matrix object representing the symbolic function.
             X (np.ndarray): A NumPy array representing the state variables.
@@ -469,10 +469,10 @@ class ExpressionDeploy:
         return function_code_file_name_without_ext
 
     @staticmethod
-    def write_measurement_function_code_from_sympy(
+    def write_measurement_equation_code_from_sympy(
             sym_object, X, file_name: str = None):
         """
-        Writes the generated C++ code for a Kalman filter measurement function based on a symbolic representation.
+        Writes the generated C++ code for a Kalman filter measurement equation based on a symbolic representation.
         Args:
             sym_object (sympy.Matrix): A sympy Matrix object representing the symbolic function.
             X (np.ndarray): A NumPy array representing the state variables.
