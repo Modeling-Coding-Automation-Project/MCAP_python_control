@@ -462,7 +462,8 @@ class UnscentedKalmanFilter_Basic(KalmanFilterCommon):
 
             for i in range(2 * self.STATE_SIZE + 1):
                 Kai[:, i] = self.state_equation(
-                    Kai[:, i].reshape(-1, 1), u, self.Parameters).flatten()
+                    Kai[:, i].reshape(-1, 1), self.u_store.get(),
+                    self.Parameters).flatten()
 
             self.x_hat = np.zeros((self.STATE_SIZE, 1))
             for i in range(2 * self.STATE_SIZE + 1):
@@ -590,7 +591,8 @@ class UnscentedKalmanFilter(UnscentedKalmanFilter_Basic):
 
             for i in range(2 * self.STATE_SIZE + 1):
                 Kai[:, i] = self.state_equation(
-                    Kai[:, i].reshape(-1, 1), u, self.Parameters).flatten()
+                    Kai[:, i].reshape(-1, 1), self.u_store.get(),
+                    self.Parameters).flatten()
 
             self.x_hat = self.w_m * Kai[:, 0].reshape(-1, 1)
             for i in range(1, 2 * self.STATE_SIZE + 1):
