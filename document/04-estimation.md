@@ -55,9 +55,9 @@ predictions = rls.predict(X)
 
 ```mermaid
 flowchart LR
-    A[入力データ X] --> B[fit(X, y) / update(x, y_true)]
+    A[入力データ X] --> B["fit(X, y) / update(x, y_true)"]
     B --> C[重みの算出]
-    C --> D[predict(X)]
+    C --> D["predict(X)"]
     D --> E[予測値の出力]
 ```
 

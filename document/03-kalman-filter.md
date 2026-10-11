@@ -87,10 +87,10 @@ x_estimated = ukf.get_x_hat_without_delay()
 
 ```mermaid
 flowchart LR
-    A[現在の状態 x_hat] --> B[predict(u)]
+    A[現在の状態 x_hat] --> B["predict(u)"]
     B --> C[次状態を予測]
     C --> D[観測 y を受ける]
-    D --> E[update(y)]
+    D --> E["update(y)"]
     E --> F[状態補正]
     F --> G[次のループへ]
 ```
