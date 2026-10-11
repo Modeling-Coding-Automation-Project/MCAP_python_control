@@ -11,6 +11,16 @@ https://github.com/Modeling-Coding-Automation-Project/python_control_to_cpp
 
 Python 3.11 以降
 
+## ドキュメント
+
+制御や状態推定のクラスを使う方法を、サンプルコードと合わせて説明した資料を以下に用意しています。
+
+- [document/README.md](./document/README.md)
+- [document/01-overview.md](./document/01-overview.md)
+- [document/02-pid-controller.md](./document/02-pid-controller.md)
+- [document/03-kalman-filter.md](./document/03-kalman-filter.md)
+- [document/04-estimation.md](./document/04-estimation.md)
+
 ## サポート
 
 新規にissueを作成して、詳細をお知らせください。
