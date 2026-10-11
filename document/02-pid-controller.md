@@ -69,7 +69,7 @@ PID 制御の流れは、サンプルコード上では次のように表せま�
 flowchart TD
     A[目標値 r] --> B[現在値 y を取得]
     B --> C[誤差 e = r - y]
-    C --> D[DiscretePID_Controller.update(e)]
+    C --> D["DiscretePID_Controller.update(e)"]
     D --> E[出力 u を計算]
     E --> F[対象に入力]
     F --> G[新しい y を取得]
