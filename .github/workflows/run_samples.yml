@@ -24,15 +24,15 @@ jobs:
 
         sudo apt install -y build-essential
 
-        sudo apt install -y python3.12
+        sudo apt install -y python3
 
-        sudo apt install -y python3.12-dev
+        sudo apt install -y python3-dev
 
-        sudo apt install -y python3.12-venv
+        sudo apt install -y python3-venv
 
         '
     - name: Set up Python environment
-      run: 'python3.12 -m venv /opt/venv_py_sim_manager
+      run: 'python3 -m venv /opt/venv_py_sim_manager
 
         /opt/venv_py_sim_manager/bin/pip install --upgrade pip
 
