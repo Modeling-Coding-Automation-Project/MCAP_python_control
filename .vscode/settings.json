@@ -1,5 +1,6 @@
 {
     "files.associations": {
+        "*.py": "python",
         "array": "cpp",
         "algorithm": "cpp",
         "atomic": "cpp",
@@ -71,16 +72,25 @@
         "numbers": "cpp",
         "complex": "cpp",
         "sstream": "cpp",
-        "cinttypes": "cpp"
+        "cinttypes": "cpp",
+        "fstream": "cpp"
     },
     "[python]": {
         "editor.defaultFormatter": "ms-python.autopep8",
         "editor.formatOnSave": true
     },
+    "python.defaultInterpreterPath": "/opt/venv_py_MCAP/bin/python",
+    "autopep8.interpreter": [
+        "/opt/venv_py_MCAP/bin/python"
+    ],
     "autopep8.args": [
         "--ignore",
         "E402"
     ],
+    "autopep8.importStrategy": "useBundled",
     "editor.defaultFormatter": "xaver.clang-format",
     "editor.formatOnSave": true,
+    "cmake.autoSelectActiveFolder": false,
+    "cmake.sourceDirectory": "${workspaceFolder}",
+    "cmake.ignoreCMakeListsMissing": true,
 }
