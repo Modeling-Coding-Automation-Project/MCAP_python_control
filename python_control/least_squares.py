@@ -1,9 +1,7 @@
 """
 file: least_squares.py
 
-This module implements a Recursive Least Squares (RLS) algorithm for online linear regression.
-The RLS algorithm incrementally updates model parameters to minimize the squared error between
-predicted and true values, making it suitable for adaptive filtering and real-time system identification.
+Batch Least Squares (LS) and Recursive Least Squares (RLS) regression.
 """
 import numpy as np
 
@@ -15,33 +13,52 @@ class LeastSquares:
     Attributes:
         state_size (int): The number of features in the input data.
         number_of_data (int): The number of data points.
-        weights (np.ndarray): The weights of the linear model, including a bias term.
+        fit_intercept (bool): Whether to append a constant column (default True).
+        parameter_count (int): Number of features plus the optional intercept.
+        weights (np.ndarray): Feature weights followed by the optional intercept.
+
+    Pass raw features without a manually appended constant column. Set
+    fit_intercept=False to solve min ||X weights - y||^2 through the origin.
     """
 
-    def __init__(self, X):
+    def __init__(self, X, fit_intercept=True):
+        if X.ndim != 2:
+            raise ValueError("Input data must be a two-dimensional array.")
         self.state_size = X.shape[1]
         if self.state_size <= 0:
             raise ValueError("State size must be greater than 0.")
 
         self.number_of_data = X.shape[0]
+        self._fit_intercept = bool(fit_intercept)
+        self.parameter_count = self.state_size + int(self.fit_intercept)
 
-        self.weights = np.zeros((self.state_size + 1, 1), dtype=X.dtype)
+        self.weights = np.zeros((self.parameter_count, 1), dtype=X.dtype)
+
+    @property
+    def fit_intercept(self):
+        """Read-only mode; construct a new model to change parameter dimensions."""
+        return self._fit_intercept
+
+    def _design_matrix(self, X):
+        """Use the same feature and intercept convention for fit and predict."""
+        if X.ndim != 2 or X.shape[1] != self.state_size:
+            raise ValueError("Wrong state size.")
+        if self.fit_intercept:
+            # Preserve the existing float64 promotion when adding an intercept.
+            return np.hstack([X, np.ones((X.shape[0], 1))])
+        return X
 
     def fit(self, X, y):
         """
         Fit the model to the provided data using Least Squares method.
         Args:
             X (np.ndarray): Input data of shape (n_samples, n_features).
-            y (np.ndarray): Target values of shape (n_samples,).
+            y (np.ndarray): Targets of shape (n_samples,) or (n_samples, 1).
         Raises:
             ValueError: If the input data does not match the expected state size.
         """
-        if X.shape[1] != self.state_size:
-            raise ValueError("Wrong state size.")
-
-        X = np.hstack([X, np.ones((X.shape[0], 1))])  # Add bias term
-
-        self.weights = np.linalg.lstsq(X, y)[0]
+        self.weights = np.linalg.lstsq(
+            self._design_matrix(X), y, rcond=None)[0]
 
     def predict(self, X):
         """
@@ -49,19 +66,19 @@ class LeastSquares:
         Args:
             X (np.ndarray): Input data of shape (n_samples, n_features).
         Returns:
-            np.ndarray: Predicted target values of shape (n_samples,).
+            np.ndarray: Predictions with the same target dimensionality as fit.
         Raises:
             ValueError: If the input data does not match the expected state size.
         """
-        X = np.hstack([X, np.ones((X.shape[0], 1))])  # Add bias term
-
-        return X @ self.weights
+        return self._design_matrix(X) @ self.weights
 
     def get_weights(self):
         """
         Get the weights of the fitted model.
         Returns:
-            np.ndarray: The weights of the model, including the bias term.
+            np.ndarray: Feature weights, followed by a bias only when
+                fit_intercept=True. A one-dimensional target gives a vector;
+                a column target gives a column of weights.
         """
         return self.weights
 

@@ -65,6 +65,8 @@ jobs:
 
         /opt/venv_py_sim_manager/bin/python3 ./sample/least_squares/least_squares_method.py
 
+        /opt/venv_py_sim_manager/bin/python3 ./sample/least_squares/least_squares_intercept.py
+
         /opt/venv_py_sim_manager/bin/python3 ./sample/least_squares/recursive_squares_method.py
 
         /opt/venv_py_sim_manager/bin/python3 ./sample/kalman_filter/linear_kalman_filter.py
