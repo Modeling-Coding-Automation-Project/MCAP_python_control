@@ -16,8 +16,40 @@ predictions = ls.predict(X)
 print(ls.get_weights())
 ```
 
-このクラスは、最初に `X` の列数から「特徴量の数」を認識し、内部でバイアス項を含めた重み行列を用意します。
+このクラスは、最初に `X` の列数から「特徴量の数」を認識し、既定では切片（バイアス）項を含めた重みを用意します。
 その後、`fit(X, y)` で最小二乗法により重みを算出し、`predict(X)` で新しいデータに対する予測ができます。
+
+### 切片の選択
+
+`fit_intercept` で切片の有無を選択できます。既定の `True` は
+`y ≈ Xw + b` を、`False` は切片を付加せず `y ≈ Xw` を最小二乗で求めます。
+どちらの場合も、`X` には手動で定数列を追加しない特徴量行列を渡します。
+
+```python
+import numpy as np
+from python_control.least_squares import LeastSquares
+
+X = np.array([[1.0], [2.0], [3.0]])
+y = np.array([[2.0], [3.0], [4.0]])
+
+with_intercept = LeastSquares(X)  # fit_intercept=True
+without_intercept = LeastSquares(X, fit_intercept=False)
+with_intercept.fit(X, y)
+without_intercept.fit(X, y)
+
+print(with_intercept.get_weights().ravel())     # [1. 1.]（係数、切片）
+print(without_intercept.get_weights().ravel())  # [1.42857143]（係数のみ）
+print(without_intercept.predict(np.array([[0.0]])))  # [[0.]]
+```
+
+切片ありの重みは特徴量の係数に続いて切片が末尾に入り、要素数は特徴量数＋1です。
+切片なしでは特徴量数と同じ要素数になります。目的値 `y` が1次元なら重みと予測も1次元、
+列ベクトルなら列ベクトルです。`parameter_count` で重みの要素数を確認できます。
+`fit_intercept` は読み取り専用のため、設定を変更する場合は新しいモデルを生成してください。
+切片なしのモデルは原点を通るように学習され、切片ありの重みから末尾を取り除いたものとは一般に異なります。
+
+比較例は `sample/least_squares/least_squares_intercept.py` で実行できます。
+この選択は `LeastSquares` の機能であり、`RecursiveLeastSquares` は切片を含みます。
 
 ### 使いどころ
 
