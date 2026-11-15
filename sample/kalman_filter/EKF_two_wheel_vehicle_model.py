@@ -101,9 +101,8 @@ def create_model(delta_time: float):
     print("Measurement Equation (hx):")
     sp.pprint(hx)
 
-    # derive Jacobian
-    fxu_jacobian = fxu.jacobian(X)
-    hx_jacobian = hx.jacobian(X)
+    fxu_jacobian = sp.simplify(fxu.jacobian(X))
+    hx_jacobian = sp.simplify(hx.jacobian(X))
 
     fxu_file_name = ExpressionDeploy.write_state_equation_code_from_sympy(
         fxu, X, U)
